@@ -24,7 +24,11 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "TH1F.h"
 
+<<<<<<< TrigMatch.cc
+//#include "TVector3.h" sdtest
+=======
 //#include "TVector3.h" test
+>>>>>>> 1.2
 
 //namespace trigger{
 //  class TriggerEvent;
