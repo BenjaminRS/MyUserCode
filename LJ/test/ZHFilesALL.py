@@ -1,0 +1,576 @@
+import FWCore.ParameterSet.Config as cms
+
+
+def GetEJFiles(Mass,Step):
+	if Mass==115 and Step=='C':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH115_Dark_3step_15_6_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'04A2E035-5B64-E111-AC1D-002481E14D64.root',
+			location+'0E99B607-A864-E111-8D51-00E08178C151.root',
+			location+'167A3D95-4664-E111-9082-002481E94262.root',
+			location+'2630315F-4564-E111-8F35-003048D47A18.root',
+			location+'323AD05B-7F64-E111-9CFA-0025B3E0653E.root',
+			location+'328BFC5F-3F64-E111-9F68-0025B31E3C04.root',
+			location+'5E856297-B264-E111-A303-003048D47768.root',
+			location+'60FF8C96-4964-E111-9C72-00E08178C0F3.root',
+			location+'6E20B73F-5664-E111-9F49-003048D476CC.root',
+			location+'7EDA31E8-9A64-E111-B5CB-00E08178C151.root',
+			location+'86CE672A-8164-E111-B0F8-0025902008D8.root',
+			location+'86FA3CF0-4164-E111-AB55-001A64789E00.root',
+			location+'8A7098F9-5364-E111-B082-001A64789D9C.root',
+			location+'A07B471C-C064-E111-A56E-0025B3E05C74.root',
+			location+'BC061F3F-BA64-E111-BC86-003048D4609E.root',
+			location+'C420864F-5D64-E111-8C73-003048C8EE54.root',
+			location+'CEFE91D0-6564-E111-8021-0025B3E05BB8.root',
+			location+'DA0EF794-4D64-E111-AE8E-00E081791737.root',
+		)
+		
+	elif Mass==115 and Step=='D':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH115_Dark_3step_1_pt21_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'04593EE6-9564-E111-8208-00E08179187F.root',
+			location+'104E76AD-8664-E111-802E-003048D46098.root',
+			location+'26470BE1-E064-E111-BC6A-00E08179187F.root',
+			location+'64323C3A-9C64-E111-9240-003048D46250.root',
+			location+'7A250A8F-C564-E111-86AE-003048D45FBC.root',
+			location+'7E175F77-8D64-E111-B2B4-003048D46098.root',
+			location+'8455E576-AF64-E111-B4CE-003048D4604A.root',
+			location+'A414B066-8464-E111-B4C0-0025902008A4.root',
+			location+'AC760D2A-9064-E111-AFDB-00E08179187B.root',
+			location+'C6405E70-8864-E111-BBA2-00E08178C075.root',
+			location+'C840B133-B664-E111-AD46-003048670BE2.root',
+			location+'CEEF4F61-E964-E111-832A-00E081791841.root',
+			location+'E035A6AE-A264-E111-BEAF-003048D45FF2.root',
+			location+'E2180AFC-CA64-E111-8AED-003048D47A54.root',
+			location+'E6623B92-9264-E111-8FB6-00E081791841.root',
+			location+'EAFFFE31-B664-E111-B2E1-003048D47A56.root',
+			location+'EEE86EAF-8B64-E111-ABAA-003048D46098.root',
+			location+'F62D4130-9B64-E111-8DC2-003048D47A18.root',
+			location+'FAAFC408-BE64-E111-AE56-0025B3E066A0.root',
+		)
+		
+	elif Mass==115 and Step=='A':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH115_Dark_3step_25_12_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'02EFCE31-3965-E111-B0A0-003048D47A62.root',
+			location+'1CF302E9-4365-E111-BC6A-001A6478AA34.root',
+			location+'1CFC6113-4865-E111-A6B1-00304863623E.root',
+			location+'3629792D-6B65-E111-9A2E-002481E75CDE.root',
+			location+'54E015B0-5865-E111-9B5C-0025B3E063F0.root',
+			location+'803FF8FA-8165-E111-A2D6-002481E75CDE.root',
+			location+'8874B288-7A65-E111-B9D6-003048D47824.root',
+			location+'B4EAFE95-5B65-E111-B209-003048D47A30.root',
+			location+'C0AA0FFE-3965-E111-9842-001A64789D1C.root',
+			location+'C47CBCFD-8366-E111-8E89-003048D4609A.root',
+			location+'CAF764B9-5965-E111-A5B7-003048D47A30.root',
+			location+'CC79D60C-4D65-E111-8B48-002590200B68.root',
+			location+'D2A2ABF3-6665-E111-A046-001A64789DE0.root',
+			location+'D63D54E2-4965-E111-B168-002590200A88.root',
+			location+'DE703B2D-5065-E111-AE4D-003048D46018.root',
+			location+'E41236C7-4065-E111-833C-001A64789D94.root',
+			location+'EC861B0F-6065-E111-A63B-0025B3E05C7E.root',
+			location+'EEE79871-5465-E111-9009-001A6478933C.root',
+			location+'FE70CDBC-DB65-E111-9F64-0025B3E065FE.root',
+		)
+		
+	elif Mass==115 and Step=='B':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH115_Dark_3step_25_7_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'0695E903-5765-E111-8C7E-002590200AF4.root',
+			location+'0EAF656D-5E65-E111-8345-00E081791865.root',
+			location+'105CA4D5-5365-E111-8708-00E08178C021.root',
+			location+'30B23BC9-7065-E111-8992-003048C8EC4C.root',
+			location+'581056A9-3B65-E111-AD7F-001A647894F8.root',
+			location+'5ABD1778-8365-E111-AFD3-0025B31E3C04.root',
+			location+'8816D41C-8765-E111-9AAA-00E0817918B5.root',
+			location+'9025C603-4765-E111-90F6-001A64789470.root',
+			location+'A46F669C-6465-E111-B4A5-00E0817917D7.root',
+			location+'A6D42CEF-5C65-E111-9CD9-003048D4602A.root',
+			location+'A8138AD8-5666-E111-B6C3-0025B3E06382.root',
+			location+'C4E0F364-4165-E111-8051-001A64789D14.root',
+			location+'C8240898-7565-E111-941F-003048D4607C.root',
+			location+'D03BB8BB-5A65-E111-A677-002481E14F5C.root',
+			location+'D8F79A99-6C65-E111-9F28-D8D385FF4B32.root',
+			location+'E47D437E-5265-E111-A28A-0025902009E4.root',
+			location+'EE976245-7466-E111-964D-003048D45F7A.root',
+			location+'FC7AD137-6965-E111-A1C9-00E08179173F.root',
+			location+'FCF4C755-6265-E111-AA39-003048D476A8.root',
+		)
+		
+	elif Mass==125 and Step=='C':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH125_Dark_3step_15_6_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'1E874C65-9D64-E111-A97B-002481E14E2C.root',
+			location+'24F8B66F-9364-E111-894B-002481E14E2C.root',
+			location+'44E1264C-8964-E111-98EC-00E08178C075.root',
+			location+'50F5ADB2-9964-E111-8690-002590200840.root',
+			location+'5C86488E-A464-E111-B081-002481E14E2C.root',
+			location+'5C97F2DA-6064-E111-B901-003048D47A06.root',
+			location+'6059F7C8-9864-E111-8076-003048635E2C.root',
+			location+'8860F650-9264-E111-9AB5-00E081791841.root',
+			location+'922CDEBF-5B64-E111-ADAF-003048D45FC8.root',
+			location+'96AF0E6E-CD64-E111-962F-003048D46050.root',
+			location+'B29562AB-AD64-E111-BF2C-0025B3E05C9E.root',
+			location+'B4735838-8264-E111-936C-00E08177F39D.root',
+			location+'B4DD504C-8E64-E111-97E3-00E0817918AB.root',
+			location+'C8E1471A-A764-E111-A283-003048D45FF2.root',
+			location+'CE4468AF-9C64-E111-9F56-003048635F0C.root',
+			location+'CE912A01-8264-E111-845B-003048D46024.root',
+			location+'DC4C93C8-8364-E111-B206-0025902009D8.root',
+			location+'F80B4614-9664-E111-8190-002481E14E2C.root',
+		)
+	
+	elif Mass==125 and Step=='D':	
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH125_Dark_3step_1_pt21_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'027A5962-9464-E111-B6C6-003048635E2C.root',
+			location+'06A5A33F-6664-E111-86F3-001E67085814.root',
+			location+'08B95F1D-4364-E111-BFBE-00E0817918B7.root',
+			location+'08D958D6-6164-E111-953D-002481E14F86.root',
+			location+'10E5AE66-4E64-E111-8875-00E081791867.root',
+			location+'20BF5810-5165-E111-8D3E-0025902008DC.root',
+			location+'24E2B238-8064-E111-90DD-0025902008D8.root',
+			location+'363199EC-A764-E111-A709-0025B3E05C9E.root',
+			location+'444E4BD0-8264-E111-8DBA-00E081791793.root',
+			location+'44E4D4DD-4664-E111-93A7-0025B3E065CA.root',
+			location+'943D0171-6064-E111-B0BA-002590200834.root',
+			location+'982FC942-5864-E111-A8CD-002481E150EE.root',
+			location+'B2DFE9E8-5364-E111-B402-0025B3E06448.root',
+			location+'C2535A64-4864-E111-AE35-0025B3E05D3E.root',
+			location+'C8D2E1AD-7E64-E111-94D7-003048673EFE.root',
+			location+'CE4D72E5-5364-E111-BA3C-003048D46048.root',
+			location+'E432BC3F-6E64-E111-B52C-00E0817917FB.root',
+			location+'E6524AEE-5A64-E111-9DC4-00E0817917FB.root',
+			location+'E698FE68-4A64-E111-A322-003048D4610E.root',
+		)
+		
+	elif Mass==125 and Step=='A':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH125_Dark_3step_25_12_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'0EEAAD6F-3365-E111-8B53-003048670B14.root',
+			location+'1A16731A-2765-E111-AB60-001A64789498.root',
+			location+'264F3D30-3965-E111-A4C7-003048D46020.root',
+			location+'526B2670-4065-E111-9CFE-00E081791871.root',
+			location+'5A9ABC61-4565-E111-8A01-003048D4774E.root',
+			location+'6C25AA19-2165-E111-ADE0-001A64789E6C.root',
+			location+'70043F8B-3265-E111-8BB2-003048670B14.root',
+			location+'70F85554-2C65-E111-9244-001A647894EC.root',
+			location+'7831FB11-2465-E111-8C74-001A6478AB94.root',
+			location+'8487DB6E-2A65-E111-9118-001A647894E0.root',
+			location+'8C633B35-2F65-E111-93D6-0025B3E05D82.root',
+			location+'9671B609-4F65-E111-8CF5-002481E14E2A.root',
+			location+'96D13B0E-2E65-E111-9373-003048D47A14.root',
+			location+'ACE631FA-1B65-E111-839C-001A64789508.root',
+			location+'B22BB11F-3165-E111-9658-002590200AC4.root',
+			location+'EC7F8ACE-4C65-E111-A4EF-002590200B3C.root',
+			location+'F64EB191-3E65-E111-B4FF-001A64787078.root',
+		)
+		
+	elif Mass==125 and Step=='B':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH125_Dark_3step_25_7_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'108ACC41-8765-E111-9107-0025B3E05CF2.root',
+			location+'108F32B6-6A66-E111-9F34-0025B3E05C6E.root',
+			location+'1A759F03-3565-E111-9911-001A6478ABAC.root',
+			location+'1C0427E8-8765-E111-A4CD-003048D45FE4.root',
+			location+'2AA2336D-5E65-E111-A537-003048674010.root',
+			location+'2C639323-6765-E111-B784-003048D47740.root',
+			location+'304333A3-5965-E111-923C-003048D47794.root',
+			location+'38FC83B1-7A65-E111-8D88-003048635E2C.root',
+			location+'467C1D69-3765-E111-88AF-001A64789D04.root',
+			location+'48217B7D-3265-E111-A95F-003048670B14.root',
+			location+'681AE5F8-5165-E111-A06C-002590200A74.root',
+			location+'8C09FB2A-A165-E111-B929-0025B3E0656C.root',
+			location+'967C70B7-7166-E111-B32D-003048D47A64.root',
+			location+'9A3E6A4C-4B65-E111-B544-0025902009B8.root',
+			location+'B23635B7-4165-E111-95B9-002481E15008.root',
+			location+'EE44185B-7F65-E111-92BD-003048D46074.root',
+			location+'EED7E3D8-7565-E111-A1A9-002481E15270.root',
+			location+'F00A2AE3-4565-E111-8EE2-001A64789E1C.root',
+			location+'F093D29F-3E65-E111-809D-002590200974.root',
+		)
+		
+	elif Mass==150 and Step=='C':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH150_Dark_3step_15_6_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'029A4EB4-6E64-E111-BD67-0025B3E05E1C.root',
+			location+'12FBDF46-2965-E111-B32A-001A647894E0.root',
+			location+'1C051CAE-2B65-E111-BB95-001A647894E0.root',
+			location+'468366B9-4C64-E111-8903-0025B3E05DCA.root',
+			location+'548886D6-3765-E111-BC6E-003048673F7E.root',
+			location+'A0CC9BFB-8164-E111-A016-002590200AF4.root',
+			location+'A49BA10F-2165-E111-9825-001A64789DBC.root',
+			location+'B01855E7-5364-E111-9B67-00E081791867.root',
+			location+'B4D9CB35-6564-E111-AEF8-003048D460BC.root',
+			location+'B84D239B-3F64-E111-90D2-00304866C492.root',
+			location+'C06D4BB8-5964-E111-8872-0025B3E05D3A.root',
+			location+'D29D80CD-2165-E111-B6E1-003048670B14.root',
+			location+'D4C7C9CE-1E65-E111-8C0E-001A64789508.root',
+			location+'D69EAC58-4C65-E111-AD86-002590200948.root',
+			location+'D835004B-7D64-E111-82E0-0025902009D8.root',
+			location+'E4EA3DB8-5764-E111-A052-00E08179184D.root',
+			location+'E68B51FA-4564-E111-A67E-003048D47A28.root',
+			location+'F6B9A130-5E64-E111-B918-002590200B4C.root',
+		)
+		
+	elif Mass==150 and Step=='D':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH150_Dark_3step_1_pt21_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'0C2EAEAB-6465-E111-B704-003048D46016.root',
+			location+'386401CA-7265-E111-AAE7-0025B3E05CAA.root',
+			location+'38BF375D-7165-E111-874B-003048C8EC4C.root',
+			location+'4E79BC83-5F65-E111-8E98-003048670ADA.root',
+			location+'56AB5ED7-4865-E111-88B7-003048D47724.root',
+			location+'58282050-4965-E111-8351-002590200974.root',
+			location+'583385F6-7C66-E111-9915-00E081791881.root',
+			location+'5EA553C7-6165-E111-941A-003048D47A16.root',
+			location+'6CF4EE7F-9166-E111-85C8-001A64789360.root',
+			location+'6E1F03BD-5065-E111-B7D8-002590200974.root',
+			location+'7A634FB5-4365-E111-B90D-00E081791845.root',
+			location+'92A0A819-4565-E111-A84C-00E08178C0B9.root',
+			location+'9A2A7DCA-9A66-E111-B5D8-00259020093C.root',
+			location+'A02D4759-8565-E111-AA5D-003048D477A6.root',
+			location+'AAEA76E3-4A65-E111-9481-002590200AB8.root',
+			location+'B2717ECC-9865-E111-9E91-002481E14FA8.root',
+			location+'C285FF16-6865-E111-B55F-003048D46042.root',
+			location+'D60934B1-7E65-E111-A632-00E0817918BD.root',
+			location+'F2AD757D-7866-E111-BB6C-003048D47742.root',
+		)
+		
+	elif Mass==150 and Step=='A':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH150_Dark_3step_25_12_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'26BBBB31-5265-E111-A596-001A6478935C.root',
+			location+'32B1F30A-4965-E111-8CC3-003048D45F96.root',
+			location+'365CB37F-4C65-E111-850E-002590200948.root',
+			location+'3A25D4AE-3E65-E111-A839-00E08179187D.root',
+			location+'3A31B021-3965-E111-99EC-00E08179188F.root',
+			location+'48D06802-4365-E111-83BB-0025B31E3D3C.root',
+			location+'4C9A8235-4665-E111-A428-001A6478ABB4.root',
+			location+'5A151E99-4F65-E111-8745-002590200964.root',
+			location+'64213D07-5765-E111-951E-001A647894A4.root',
+			location+'68630C5C-1F65-E111-9EAB-00259021A43E.root',
+			location+'867DB8D7-5F65-E111-99B6-003048D45F38.root',
+			location+'9E769E63-2365-E111-B148-001A64789D3C.root',
+			location+'B4D9737B-6765-E111-BC84-00E0817917D7.root',
+			location+'D0132054-4B65-E111-B7D9-002590200B48.root',
+			location+'DE558667-4565-E111-A81E-00E081B08DBD.root',
+			location+'DE970D0A-5265-E111-9A9C-003048673FEA.root',
+			location+'F6265A64-5965-E111-93B9-002590200934.root',
+			location+'FE344607-4165-E111-9F5A-001A647894C4.root',
+			location+'FEF99AB1-3165-E111-983D-001A64789D80.root',
+		)
+		
+	elif Mass==150 and Step=='B':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH150_Dark_3step_25_7_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'1C858925-5865-E111-AD2A-002590200978.root',
+			location+'4874A6E0-9665-E111-B282-984BE1089DFA.root',
+			location+'6C5C52B6-6865-E111-BD6D-00E08179183B.root',
+			location+'6C5F1EBA-8165-E111-A2E5-00E08178C0E9.root',
+			location+'70353D9F-7B65-E111-B21F-003048D45F8E.root',
+			location+'76182BA7-3D65-E111-9B7C-003048D476AE.root',
+			location+'8AC0C20F-8165-E111-B4E7-0025B3E05D62.root',
+			location+'A214E5F5-5C65-E111-8437-0025B3E05C60.root',
+			location+'A8083AFB-5365-E111-BF14-002590200814.root',
+			location+'AA7672DB-3465-E111-84CD-00304867098C.root',
+			location+'AE2FF21D-5165-E111-950D-0025902009B8.root',
+			location+'B69C15B7-5665-E111-9611-003048D45FD6.root',
+			location+'B6BB9A5B-3B65-E111-A7A1-001A6478ABAC.root',
+			location+'B8646888-3665-E111-8DBA-00E081791765.root',
+			location+'BC207A5C-4565-E111-968B-0025902008C4.root',
+			location+'CA8C5E14-4D65-E111-89C1-002590200A74.root',
+			location+'E0A84A4F-6C65-E111-A524-00E081791857.root',
+			location+'E87CE16A-6065-E111-BD95-003048D45FE8.root',
+			location+'EECA8300-3465-E111-9755-001A647894E8.root',
+		)
+		
+	elif Mass==200 and Step=='C':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH200_Dark_3step_15_6_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'009B384F-9E65-E111-9CDB-003048D47A5E.root',
+			location+'043EC7B8-DB65-E111-8BF3-003048D47A64.root',
+			location+'10A52D57-7365-E111-89B6-984BE1089EB8.root',
+			location+'129B2D8F-7A65-E111-AD45-0025B3E06424.root',
+			location+'1ECB9AE3-7765-E111-B2C0-0025B31E3C1C.root',
+			location+'389F5D8B-8365-E111-86E1-0025B31E3CC0.root',
+			location+'42040FCA-5F66-E111-A5C4-003048674052.root',
+			location+'5EC99E63-7E65-E111-8530-00E08178C021.root',
+			location+'6C99F1D5-7665-E111-BB61-003048D479CC.root',
+			location+'8CB95A33-8D66-E111-9470-002590147CA2.root',
+			location+'94B3250E-8265-E111-B021-002481E76008.root',
+			location+'AA9C726B-6F65-E111-9B60-00E08178C079.root',
+			location+'AE8AE6CD-7465-E111-AC4A-003048D4607C.root',
+			location+'C2571E67-7C65-E111-923F-003048D477A4.root',
+			location+'CE8E9BAB-7B66-E111-BA54-0025B3E05C74.root',
+			location+'DEE23435-9665-E111-9A61-003048673F1E.root',
+			location+'E4DDA480-7F65-E111-AA23-003048673EA4.root',
+			location+'EE6BA193-7266-E111-B8FA-00E0817917D1.root',
+		)
+		
+	elif Mass==200 and Step=='D':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH200_Dark_3step_1_pt21_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'1AA0F1D2-5B65-E111-A71B-003048D45FF8.root',
+			location+'22ACC6AD-9B66-E111-8082-002590200930.root',
+			location+'30A2C236-8166-E111-BC78-003048D46076.root',
+			location+'3290C090-8E66-E111-949E-001A647894DC.root',
+			location+'4E14B6D5-3265-E111-B31C-001A64789DEC.root',
+			location+'546D51D0-A665-E111-8933-00E08178C101.root',
+			location+'5E069569-6D65-E111-BD00-003048D46042.root',
+			location+'60D0EF5C-E465-E111-931D-002590200898.root',
+			location+'8A6BC1FA-7C66-E111-B70B-0025B3E05DFA.root',
+			location+'90D14398-8266-E111-AB29-002481E14F5C.root',
+			location+'920AD7A3-9565-E111-B39B-0025B3E05BC4.root',
+			location+'944355F4-2265-E111-A5BF-00304866C368.root',
+			location+'9E4DC9CA-3765-E111-9B39-001A64789E24.root',
+			location+'A4B5EBB9-2B65-E111-BD3E-003048D46020.root',
+			location+'A8FA55BA-7166-E111-8971-003048D4610A.root',
+			location+'B80A5812-A266-E111-A6BD-001A647894E4.root',
+			location+'C20BEE7F-7B65-E111-8017-003048D47786.root',
+			location+'D2B914C5-4C65-E111-BA64-003048673E9A.root',
+			location+'FCEE369E-1F65-E111-ACE7-001A64789508.root',
+		)
+		
+	elif Mass==200 and Step=='A':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH200_Dark_3step_25_12_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'18BDB898-4664-E111-A7E7-003048D46010.root',
+			location+'1E5B52DA-4964-E111-917B-003048D46048.root',
+			location+'22ECDCF1-5364-E111-94AC-0025B3E05BFC.root',
+			location+'2C0BCCA7-6165-E111-ABA1-003048D476A8.root',
+			location+'2C54FC1F-3465-E111-92BC-003048D45FEC.root',
+			location+'3E77FE75-5C64-E111-8ED4-00E081791823.root',
+			location+'463A85E7-2E65-E111-8209-001A6478946C.root',
+			location+'56804D41-8064-E111-9F01-002590200810.root',
+			location+'5E13BC41-5864-E111-A6C4-001A64787060.root',
+			location+'6037BC1D-6064-E111-9831-003048D47724.root',
+			location+'A265F173-6464-E111-9E21-003048673F1E.root',
+			location+'AC9111ED-5364-E111-8116-001A64789DA0.root',
+			location+'B67CB9CE-1F65-E111-816C-003048673FC0.root',
+			location+'BC08BE7E-4C65-E111-8E93-001A64789DB0.root',
+			location+'BE660EFF-6764-E111-A7CF-001A64789D54.root',
+			location+'D4C1128E-2665-E111-87BD-001A6478A7C4.root',
+			location+'E20DD760-5E64-E111-8BAD-00E08178C0F7.root',
+			location+'EE9E166B-6D64-E111-8CB5-0025B3E06658.root',
+		)
+		
+	elif Mass==200 and Step=='B':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH200_Dark_3step_25_7_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'02565D60-CA64-E111-927B-00E08178C17B.root',
+			location+'0816C687-5664-E111-8862-001A64789D9C.root',
+			location+'20400F05-E964-E111-A729-00E08178C143.root',
+			location+'208F5BAF-6264-E111-88C2-002590200824.root',
+			location+'2A21C565-D864-E111-8F99-00E08178C18D.root',
+			location+'2AB63E6D-4A64-E111-89EF-0025B3E05DCA.root',
+			location+'6860DFA5-C464-E111-92BC-003048D45F8E.root',
+			location+'746C78FA-F564-E111-9772-001A64789D38.root',
+			location+'800653FC-5564-E111-921C-003048D4770E.root',
+			location+'8EBCE24D-C964-E111-8663-00E08177F253.root',
+			location+'8ECD48D9-5864-E111-AEB8-003048D476D4.root',
+			location+'90B0D4ED-5A64-E111-987F-001A64787078.root',
+			location+'9E151EED-5364-E111-BCAF-003048D4612C.root',
+			location+'A6654763-E864-E111-90CB-00E081791841.root',
+			location+'D48019A8-CE64-E111-962B-D8D385FF4A7C.root',
+			location+'E200D2EB-5364-E111-8821-002481E14FCA.root',
+			location+'E6108E2D-BF64-E111-A301-002481E14E58.root',
+			location+'F6756A59-C464-E111-927B-D8D385FF4ABA.root',
+			location+'FCCD3F2C-C864-E111-9E08-0025B3E05DDA.root',
+		)
+		
+	elif Mass==400 and Step=='C':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH400_Dark_3step_15_6_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'106CE2F4-2C65-E111-A625-001A64789E1C.root',
+			location+'166366E4-B264-E111-8C10-003048D45F6A.root',
+			location+'1AE22D61-3665-E111-96C2-001A6478A824.root',
+			location+'243F87D7-5465-E111-BBCC-0025902008FC.root',
+			location+'383CDE20-3565-E111-A780-001A64789DCC.root',
+			location+'4C57C089-A264-E111-B0A4-00E08179187F.root',
+			location+'5CB25414-4065-E111-A9E8-00E081B08D91.root',
+			location+'705A4FFD-3165-E111-BFEA-001A64789DEC.root',
+			location+'8281FAE9-2E65-E111-8D49-003048D45F62.root',
+			location+'90A06E09-A664-E111-8D00-003048D47778.root',
+			location+'9A7A438F-3965-E111-A2C4-001A64789E18.root',
+			location+'AAD129A0-2165-E111-935A-001A64789E28.root',
+			location+'B0320B3E-8C64-E111-B90D-00E081B08BC9.root',
+			location+'B49EACC8-2B65-E111-9E40-00E081791865.root',
+			location+'B8931936-4E65-E111-A276-002590200834.root',
+			location+'DA4B38DC-3665-E111-95D4-001A64789E24.root',
+			location+'DE52C87D-4565-E111-B4A1-00E0817917F3.root',
+			location+'FADAAB1F-9A64-E111-BB67-003048D46022.root',
+			location+'FC3C2A26-3D65-E111-B9D3-003048635E46.root',
+		)
+		
+	elif Mass==400 and Step=='D':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH400_Dark_3step_1_pt21_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'023B4203-4F64-E111-B58C-0030486361DC.root',
+			location+'1E3DD957-6364-E111-84E3-00E081791779.root',
+			location+'28E8B43C-ED64-E111-AF56-0025B3E05DFE.root',
+			location+'3020F018-8264-E111-89EA-003048D45F6A.root',
+			location+'4EA6DF9C-7E64-E111-B853-00E081791793.root',
+			location+'585D9BC7-7764-E111-B566-0025902008A4.root',
+			location+'588C36C3-6164-E111-A4BF-003048D47A06.root',
+			location+'5CCD96CF-8264-E111-AD57-00E08178C10B.root',
+			location+'64E45E66-5E65-E111-AB9D-003048D4777E.root',
+			location+'6A1B2005-6864-E111-83FF-002590200AC0.root',
+			location+'6E431129-AE64-E111-BAA9-003048D4604A.root',
+			location+'720DB444-7764-E111-8C9C-002590200B44.root',
+			location+'76A42082-5F64-E111-A014-0025902009D8.root',
+			location+'8C988085-9764-E111-B4B0-00E08178C12B.root',
+			location+'980A31F9-8164-E111-8DC8-00E081791793.root',
+			location+'A2CEB7DB-E064-E111-A28F-002590200B10.root',
+			location+'B8B66BAE-5764-E111-B8A4-002590200A58.root',
+			location+'EAE6CF74-5C64-E111-9D67-003048D45FC8.root',
+			location+'FC6106EC-5364-E111-A76B-003048D47718.root',
+		)
+		
+	elif Mass==400 and Step=='A':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH400_Dark_3step_25_12_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'00F17FE1-8666-E111-BA39-003048D437CE.root',
+			location+'04779C1A-8E66-E111-B9D3-001A64789E40.root',
+			location+'14B7E236-8166-E111-AF48-0025B31E3C58.root',
+			location+'1E38C2A3-5966-E111-BEFB-00E08177F12F.root',
+			location+'22E2CDE1-7066-E111-BF97-003048D47A64.root',
+			location+'28A27FA5-8165-E111-B25D-003048D47748.root',
+			location+'56BEAB3E-8665-E111-8C1B-003048D460F6.root',
+			location+'8823240F-9C65-E111-9192-003048D4772C.root',
+			location+'92D2C95F-9B66-E111-A573-002590200874.root',
+			location+'A2628C48-EC65-E111-9CAC-002590200984.root',
+			location+'B0BB75C6-9B65-E111-807F-0025B3E05BA8.root',
+			location+'B262489F-8365-E111-8C0A-003048674052.root',
+			location+'BA32C320-8765-E111-9619-002481E10A5C.root',
+			location+'BEE987AB-DB65-E111-B836-003048D47A8A.root',
+			location+'CCD1D6D1-7466-E111-87B9-00E081791881.root',
+			location+'DC5E7CFA-7D65-E111-9E54-002481E14F1E.root',
+			location+'DEC5CBD0-8E66-E111-9507-001A64789360.root',
+			location+'E86FFE36-7A65-E111-9FE3-003048D45FD4.root',
+			location+'EEF4591B-BE65-E111-9A1E-0025B3E05CF8.root',
+			location+'FCD6250B-7C65-E111-B8C4-00E08179177F.root',
+		)
+		
+	elif Mass==400 and Step=='B':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH400_Dark_3step_25_7_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'12ABCD3A-5165-E111-B65F-0025902009B4.root',
+			location+'26A09B0A-6E65-E111-92B6-00304863623A.root',
+			location+'2E30008B-8666-E111-AADF-003048D46076.root',
+			location+'324AFEBB-8065-E111-ADE7-003048D47748.root',
+			location+'32EAEA6E-A565-E111-B08C-003048673EAE.root',
+			location+'38885D4C-A166-E111-997A-002590200874.root',
+			location+'4E9609D0-6C65-E111-9DBE-00E081791775.root',
+			location+'564A06A8-9A65-E111-BE13-002481E10A5C.root',
+			location+'5A783686-5F65-E111-BCB7-001A647894F8.root',
+			location+'7056B6CD-4965-E111-A0C5-00E081791845.root',
+			location+'78BC8DE2-5365-E111-A7AD-002590200974.root',
+			location+'86B68890-6165-E111-920D-003048D4600E.root',
+			location+'9028A30D-5D65-E111-AFF9-003048D4604E.root',
+			location+'9C479852-6665-E111-A04D-003048D460C4.root',
+			location+'BC71AFFC-6366-E111-84C3-003048670BE2.root',
+			location+'C8A7C006-7665-E111-B376-003048D479CC.root',
+			location+'CA93774C-4F65-E111-830B-001A64789E1C.root',
+			location+'F27C659B-4265-E111-B478-00E08178C163.root',
+			location+'FE872735-6B65-E111-AD02-00E081791775.root',
+			location+'FE87A2BE-5765-E111-A080-002590200934.root',
+		)
+		
+	elif Mass==600 and Step=='C':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH600_Dark_3step_15_6_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'06A20A23-8765-E111-A768-003048D45FE4.root',
+			location+'0A46E5FC-4865-E111-B858-00E08178C143.root',
+			location+'168CA83C-A365-E111-BFD3-0025B3E06468.root',
+			location+'1C5D5997-7A65-E111-9ACC-003048D45F8C.root',
+			location+'504567F3-7665-E111-85B5-003048D476B6.root',
+			location+'5CFCC25A-7365-E111-8C95-00E08178C0B9.root',
+			location+'781A231A-4765-E111-A409-00E08178C0F5.root',
+			location+'784D9531-4E65-E111-ABF6-002590200840.root',
+			location+'8C6D2971-5A65-E111-A2A2-003048D47A30.root',
+			location+'92AE29AE-8065-E111-8903-003048D45FCC.root',
+			location+'967F4E7F-6565-E111-83BF-003048D476F8.root',
+			location+'989E9998-4965-E111-8D48-001A64789D78.root',
+			location+'9A62B079-4466-E111-AC8B-003048D460BC.root',
+			location+'A6BEE0A0-3F65-E111-ADBF-001A64789DB8.root',
+			location+'C097FBBF-4465-E111-B353-00E08179187D.root',
+			location+'CC7338FD-4165-E111-A620-001A6478A9DC.root',
+			location+'CE7B5877-6665-E111-BA04-003048D45FDA.root',
+			location+'F4C29E5D-4565-E111-973C-002590200828.root',
+		)
+		
+	elif Mass==600 and Step=='D':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH600_Dark_3step_1_pt21_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'02566683-4865-E111-81DA-003048D460F4.root',
+			location+'0A5BD6D6-E664-E111-8003-00E081791841.root',
+			location+'1C9CD13E-4465-E111-8AB9-003048D47742.root',
+			location+'2E595FC1-D864-E111-BD4C-003048635D6A.root',
+			location+'40C6B302-DD64-E111-843D-001A64789DA8.root',
+			location+'4A52AC9A-0165-E111-9E36-001A64789D50.root',
+			location+'503B8E13-EA64-E111-9DEA-003048670B64.root',
+			location+'52C60440-5F65-E111-8FB8-0025B3E05C7E.root',
+			location+'72E6988E-EC64-E111-A1B1-003048670BE2.root',
+			location+'7E20CF19-FE64-E111-BC25-001A64789DA4.root',
+			location+'7E66792C-5065-E111-8FEB-002481E14E2A.root',
+			location+'84AB975D-4765-E111-A5ED-0025B3E05CBC.root',
+			location+'9E1F4F42-3665-E111-A657-001A6478AA34.root',
+			location+'B68FB60F-F264-E111-B27D-F04DA23BCE4C.root',
+			location+'BE2558D3-DF64-E111-BC01-002590200B10.root',
+			location+'C487F6A3-DB64-E111-A238-001A64789D78.root',
+			location+'D0D7FEFA-5165-E111-803C-D8D385FF778C.root',
+			location+'E2561E5B-E264-E111-A9D9-002481E15104.root',
+		)
+		
+	elif Mass==600 and Step=='A':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH600_Dark_3step_25_12_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'08E69FB5-4665-E111-ABAB-00E08178C0C7.root',
+			location+'128A856A-6265-E111-9E69-003048D479E0.root',
+			location+'1C79B2EC-6465-E111-9E92-003048D45FDA.root',
+			location+'248B5FBE-7B65-E111-9A90-003048D477A4.root',
+			location+'28F139F4-4765-E111-9682-0025B3E064DA.root',
+			location+'3EB118EA-6065-E111-96F2-003048D4777E.root',
+			location+'40E5CDC2-A665-E111-8E5C-00E081791881.root',
+			location+'56C0F603-5B65-E111-8F55-002590200938.root',
+			location+'869470D6-5F65-E111-BD8E-002590200B20.root',
+			location+'8CE5DC88-4465-E111-96F1-0025B31E3D3C.root',
+			location+'92F78F6B-6465-E111-82D1-003048D476BA.root',
+			location+'96FC9762-5C65-E111-AF2A-003048D460F8.root',
+			location+'9AEB51FE-9966-E111-9EAD-001A64789D0C.root',
+			location+'9C34C22F-7265-E111-B4A1-003048C8EC4C.root',
+			location+'9C9207C7-5065-E111-81C7-002590200840.root',
+			location+'9EC056E5-5365-E111-BB03-003048673FEA.root',
+			location+'B03413AC-4A65-E111-B60A-0025B3E06468.root',
+			location+'B413FB13-7765-E111-B57A-0025B3E06548.root',
+			location+'E201447C-6D65-E111-B358-00E08178C195.root',
+			location+'F6C003D2-4865-E111-85C9-00E081791891.root',
+		)
+		
+	elif Mass==600 and Step=='B':
+		location='dcap://heplnx209.pp.rl.ac.uk/pnfs/pp.rl.ac.uk/data/cms/store/mc/Fall11/ZH600_Dark_3step_25_7_7TeV_Tune4C-pythia8/AODSIM/PU_S6_START44_V9B-v1/0000/'
+		EJFiles = cms.untracked.vstring(
+			location+'08F572A4-2A65-E111-A5E7-003048D46020.root',
+			location+'12BAE68E-B264-E111-B809-003048D46046.root',
+			location+'222352D9-D364-E111-B5E7-003048D45FC4.root',
+			location+'24132B10-E664-E111-A13B-D8D385FF6BB4.root',
+			location+'3A4681F0-2465-E111-B9EA-001A64789E50.root',
+			location+'3C2741EA-B564-E111-B59D-003048D47790.root',
+			location+'3E3293BB-2065-E111-8D66-001A6478A7A4.root',
+			location+'C2198118-2965-E111-BDD1-001A647894A0.root',
+			location+'CA82968E-0465-E111-8819-002590200938.root',
+			location+'CAE43146-BE64-E111-A12A-003048D45F3E.root',
+			location+'CCBD32F1-D764-E111-B7F3-00E08179181F.root',
+			location+'CEA5E319-1465-E111-AE2B-002590200A38.root',
+			location+'D2D4239C-BF64-E111-BCA6-003048D46036.root',
+			location+'D8CA6A78-1D65-E111-B1AC-00259021A43E.root',
+			location+'D8D73053-BB64-E111-B2BE-003048D479DE.root',
+			location+'E2F6C516-D064-E111-86EF-003048D47774.root',
+			location+'E4AD1308-B064-E111-8DE5-003048673F26.root',
+			location+'EA3F78B9-1065-E111-8B36-002590200A28.root',
+			location+'FEDCAABD-C464-E111-AB22-003048D4775A.root',
+		)
+	else:
+		EJFiles = cms.untracked.vstring()
+	return EJFiles
