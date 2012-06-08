@@ -67,7 +67,7 @@ class LJ : public edm::EDAnalyzer {
 		edm::Handle<std::vector<reco::PFJet> > pfJetCollection;
 //		edm::Handle<std::vector<reco::Muon> > muonCollection;
 		edm::Handle<std::vector<reco::CaloJet> > caloJetCollection;
-		edm::Handle < reco::JetTracksAssociationCollection > assocCaloJetTracks;
+		edm::Handle<reco::JetTracksAssociationCollection> assocCaloJetTracks;
 };
 
 LJ::LJ(const edm::ParameterSet& iConfig){
@@ -96,17 +96,17 @@ LJ::~LJ(){}
 
 void LJ::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 //	std::ofstream fout("1110ElePropertiesZeeBkg.csv", std::ios_base::app);
+//	fout.open("060612Values.csv", std::ios_base::app);
 	using namespace edm;
-//	std::ofstream fout("040811Values.csv", std::ios_base::app);
 	std::cerr << "Event["<< iEvent.id() << "]\n";
 	iEvent.getByLabel("gsfElectrons", electronCollection);
-	iEvent.getByLabel("ak7GenJets", genjetCollection);
+	iEvent.getByLabel("ak5GenJets", genjetCollection);
 //	iEvent.getByLabel("ak7GenJetsWithHd0", genjetCollection);
 	iEvent.getByLabel("genParticles", genParticleCollection);
 	iEvent.getByLabel("ak7PFJets", pfJetCollection);
 //	iEvent.getByLabel("muons", muonCollection);
-	iEvent.getByLabel("ak7CaloJets", caloJetCollection);
-	iEvent.getByLabel("ak7JetTracksAssociatorAtVertex", assocCaloJetTracks);
+	iEvent.getByLabel("ak5CaloJets", caloJetCollection);
+	iEvent.getByLabel("ak5JetTracksAssociatorAtVertex", assocCaloJetTracks);
 
 
 //	SimpleCutBasedElectronIDSelectionFunctor patSele95(SimpleCutBasedElectronIDSelectionFunctor::relIso95);
@@ -301,6 +301,36 @@ void LJ::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 //*/
 // ############################################## Zee BACKGROUND END
 
+// ############################################## Zee BACKGROUND FROM MC START
+	CaloJet1 = NULL;
+	CaloJet2 = NULL;
+
+	for (unsigned int MCpos(0); MCpos < genParticleCollection->size(); ++MCpos){	// Loop over genParticles to find zee
+		const reco::GenParticle* MCparticle = &(genParticleCollection->at(MCpos));
+		if (MCparticle->pdgId() == 23){
+			std::cerr << "  Found Z: " << MCparticle->pt() << "with "<< MCparticle->numberOfDaughters() <<" daughters" << std::endl;
+			for(unsigned int j(0); j<MCparticle->numberOfDaughters(); ++j){
+				if (abs(MCparticle->daughterRef(j)->pdgId())==11){
+					for( unsigned int c=0; c<caloJetCollection->size(); c++ ) {
+						const reco::CaloJet* calojet = &(caloJetCollection->at(c));
+						if (deltaR(*calojet,*MCparticle->daughterRef(j))<0.3){	// ## Jet is 'matched' if within dR<0.3 of MCParticle->
+							if (!CaloJet1) CaloJet1=calojet;
+							else CaloJet2=calojet;
+							std::cerr << "\tafter: CaloJet1= " << CaloJet1 << " CaloJet2= " << CaloJet2 << std::endl;
+						}
+					}
+					std::cerr << "\tFound ele: " << MCparticle->daughterRef(j)->pt() << std::endl;
+				}
+			}
+		}
+	}
+
+	std::vector<const reco::CaloJet*> CaloJets;
+	CaloJets.push_back(CaloJet1);
+	CaloJets.push_back(CaloJet2);
+	this->RunEJSelection(CaloJets);
+// ############################################## Zee BACKGROUND FROM MC END
+
 /*
 // ############################################## Jet BACKGROUND START
 	for( unsigned  p=0; p<pfJetCollection->size(); p++ ) {
@@ -362,59 +392,58 @@ void LJ::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 //	std::cerr << "\tnumOfGoodJets: " << numOfGoodJets << std::endl;
 
 //	##### FIND EJ's in MC #####
-	PFJet1 = NULL;
-	PFJet2 = NULL;
-	GenJet1 = NULL;
-	GenJet2 = NULL;
-	CaloJet1 = NULL;
-	CaloJet2 = NULL;
-
-	PFJetPtCompStore.clear();
-	GenJetPtCompStore.clear();
-	CaloJetPtCompStore.clear();
-	this->FindEJs();
-
-	std::vector<const reco::GenJet*> GenJets;
-	GenJets.push_back(GenJet1);
-	GenJets.push_back(GenJet2);
-
-	std::vector<const reco::PFJet*> PFJets;
-	PFJets.push_back(PFJet1);
-	PFJets.push_back(PFJet2);
-
-	std::vector<const reco::CaloJet*> CaloJets;
-	CaloJets.push_back(CaloJet1);
-	CaloJets.push_back(CaloJet2);
-
-//	##### RUN SELECTION ON EJ's #####
-	numOfGoodElectronJets=0;
-	this->RunEJSelection(PFJets);
-	std::cerr << "numOfGoodElectronJets: " << numOfGoodElectronJets << std::endl;
-	NumGoodEJ->Fill(numOfGoodElectronJets);
-	if (numOfGoodElectronJets == 2){
-		std::cerr << "\t2 EJ found\n";
-		if (GenJet1 && GenJet2){	// Does it make sense to have this here as this if depends on PF not Gen
-			TLorentzVector gjet1(GenJet1->px(), GenJet1->py(), GenJet1->pz(), GenJet1->energy());
-			TLorentzVector gjet2(GenJet2->px(), GenJet2->py(), GenJet2->pz(), GenJet2->energy());
-			TLorentzVector Higgs = gjet1 + gjet2;
-			HiggsMass->Fill(Higgs.M());
-		}
-		if (PFJet1 && PFJet2){
-			TLorentzVector pfjet1(PFJet1->px(), PFJet1->py(), PFJet1->pz(), PFJet1->energy());
-			TLorentzVector pfjet2(PFJet2->px(), PFJet2->py(), PFJet2->pz(), PFJet2->energy());
-			TLorentzVector Higgs2 = pfjet1 + pfjet2;
-			HiggsMass2->Fill(Higgs2.M());
-		}
-		for (size_t i(0); i<PFJetPtCompStore.size();++i){	// ie print only the jets which passed the event selection
-			PFJetPtComp->Fill(PFJetPtCompStore.at(i));
-			std::cerr << "PFJetPtComp: " << PFJetPtCompStore.at(i) << std::endl;
-		}
-		for (size_t j(0); j<GenJetPtCompStore.size();++j){
-			GenJetPtComp->Fill(GenJetPtCompStore.at(j));
-			std::cerr << "GenJetPtComp: " << GenJetPtCompStore.at(j) << std::endl;
-		}
-	}
-
+//	PFJet1 = NULL;
+//	PFJet2 = NULL;
+//	GenJet1 = NULL;
+//	GenJet2 = NULL;
+//	CaloJet1 = NULL;
+//	CaloJet2 = NULL;
+//
+//	PFJetPtCompStore.clear();
+//	GenJetPtCompStore.clear();
+//	CaloJetPtCompStore.clear();
+//	this->FindEJs();
+//
+//	std::vector<const reco::GenJet*> GenJets;
+//	GenJets.push_back(GenJet1);
+//	GenJets.push_back(GenJet2);
+//
+//	std::vector<const reco::PFJet*> PFJets;
+//	PFJets.push_back(PFJet1);
+//	PFJets.push_back(PFJet2);
+//
+//	std::vector<const reco::CaloJet*> CaloJets;
+//	CaloJets.push_back(CaloJet1);
+//	CaloJets.push_back(CaloJet2);
+//
+////	##### RUN SELECTION ON EJ's #####
+//	numOfGoodElectronJets=0;
+//	this->RunEJSelection(CaloJets);
+//	std::cerr << "numOfGoodElectronJets: " << numOfGoodElectronJets << std::endl;
+//	NumGoodEJ->Fill(numOfGoodElectronJets);
+//	if (numOfGoodElectronJets == 2){
+//		std::cerr << "\t2 EJ found\n";
+//		if (GenJet1 && GenJet2){	// Does it make sense to have this here as this if depends on PF not Gen
+//			TLorentzVector gjet1(GenJet1->px(), GenJet1->py(), GenJet1->pz(), GenJet1->energy());
+//			TLorentzVector gjet2(GenJet2->px(), GenJet2->py(), GenJet2->pz(), GenJet2->energy());
+//			TLorentzVector Higgs = gjet1 + gjet2;
+//			HiggsMass->Fill(Higgs.M());
+//		}
+//		if (PFJet1 && PFJet2){
+//			TLorentzVector pfjet1(PFJet1->px(), PFJet1->py(), PFJet1->pz(), PFJet1->energy());
+//			TLorentzVector pfjet2(PFJet2->px(), PFJet2->py(), PFJet2->pz(), PFJet2->energy());
+//			TLorentzVector Higgs2 = pfjet1 + pfjet2;
+//			HiggsMass2->Fill(Higgs2.M());
+//		}
+//		for (size_t i(0); i<PFJetPtCompStore.size();++i){	// ie print only the jets which passed the event selection
+//			PFJetPtComp->Fill(PFJetPtCompStore.at(i));
+//			std::cerr << "PFJetPtComp: " << PFJetPtCompStore.at(i) << std::endl;
+//		}
+//		for (size_t j(0); j<GenJetPtCompStore.size();++j){
+//			GenJetPtComp->Fill(GenJetPtCompStore.at(j));
+//			std::cerr << "GenJetPtComp: " << GenJetPtCompStore.at(j) << std::endl;
+//		}
+//	}
 // ############################################## SIGNAL END
 }
 
@@ -515,7 +544,7 @@ void LJ::RunEJSelection(std::vector<const reco::PFJet*>& PFJets){
 			int numEle(0);
 			for ( unsigned int e(0);e<electronCollection->size();++e){
 				const reco::GsfElectron* electron = &(electronCollection->at(e));
-				if (deltaR(*pfjet,*electron) < 0.7) ++numEle;   // electron in Jet ==> ak7
+				if (deltaR(*pfjet,*electron) < 0.5) ++numEle;   // electron in Jet ==> ak7
 			}
 			double ntrks = (pfjet->getTrackRefs().size());
 			if (EMF>0.95){
@@ -542,6 +571,7 @@ void LJ::RunEJSelection(std::vector<const reco::PFJet*>& PFJets){
 }
 
 void LJ::RunEJSelection(std::vector<const reco::CaloJet*>& CaloJets){
+	std::ofstream fout("070612BkgDValues.csv", std::ios_base::app);
 	for( unsigned  p=0; p<CaloJets.size(); p++ ) {
 		const reco::CaloJet* calojet;	// Can put these outside loop to stop mutliple constructions
 		calojet = CaloJets.at(p);
@@ -552,17 +582,27 @@ void LJ::RunEJSelection(std::vector<const reco::CaloJet*>& CaloJets){
 			int numEle(0);
 			for ( unsigned int e(0);e<electronCollection->size();++e){
 				const reco::GsfElectron* electron = &(electronCollection->at(e));
-				if (deltaR(*calojet,*electron) < 0.7) ++numEle;   // electron in Jet ==> ak7
+				if (deltaR(*calojet,*electron) < 0.5) ++numEle;   // electron in Jet ==> ak7
 			}
-			double ntrks = (reco::JetTracksAssociation::tracksNumber(*assocCaloJetTracks, calojet));
+			double ntrks = reco::JetTracksAssociation::tracksNumber(*assocCaloJetTracks, *calojet);
 			if (EMF>0.95){
 				PassEMF->Fill(pt);
 				if (ntrks>2){
 					PassNtrks->Fill(pt);
 					if(numEle>0){
+						if (1==numEle){
+							fout << "0\t"
+									<< calojet->pt() << "\t"
+									<< calojet->phiphiMoment() << "\t"
+									<< calojet->etaetaMoment() << "\t"
+									<< calojet->etaphiMoment() << "\t"
+									<< ntrks << std::endl;
+
+						}
 						PassNEle->Fill(pt);
 						if (1==numEle && ntrks/pt<0.45){
 							if ( (pt<70 && calojet->phiphiMoment()>0.005) || calojet->phiphiMoment()>0.005-(0.0001*(pt-70)) ){
+//							if ( (pt<70 && electronCollection->at(0).phiphiMoment()>0.005) || electronCollection->at(0).phiphiMoment()>0.005-(0.0001*(pt-70)) ){
 								SCpass->Fill(pt);
 								++numOfGoodElectronJets;
 							}
