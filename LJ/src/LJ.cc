@@ -68,21 +68,26 @@ class LJ : public edm::EDAnalyzer {
 //		edm::Handle<std::vector<reco::Muon> > muonCollection;
 		edm::Handle<std::vector<reco::CaloJet> > caloJetCollection;
 		edm::Handle<reco::JetTracksAssociationCollection> assocCaloJetTracks;
+		TH1F* dist;
+		TH2F* JetVsEle;
+		int eventNum;
+		unsigned int numMatchedJetsToEle;
+		unsigned int numEle;
 };
 
 LJ::LJ(const edm::ParameterSet& iConfig){
 	edm::Service<TFileService> fs;
-	SCpass=fs->make<TH1F>("SCPass","Scheme C Pass - ak7",500,0.0,500.0);
-	SCall=fs->make<TH1F>("SCAll","Scheme C All - ak7",500,0.0,500.0);
-	PassEMF=fs->make<TH1F>("PassEMF","PassEMF - ak7",500,0.0,500.0);
-	PassNtrks=fs->make<TH1F>("PassNtrks","PassNtrks - ak7",500,0.0,500.0);
-	PassNEle=fs->make<TH1F>("PassNEle","PassNEle - ak7",500,0.0,500.0);
+	SCpass=fs->make<TH1F>("SCPass","Scheme C Pass - ak5",500,0.0,500.0);
+	SCall=fs->make<TH1F>("SCAll","Scheme C All - ak5",500,0.0,500.0);
+	PassEMF=fs->make<TH1F>("PassEMF","PassEMF - ak5",500,0.0,500.0);
+	PassNtrks=fs->make<TH1F>("PassNtrks","PassNtrks - ak5",500,0.0,500.0);
+	PassNEle=fs->make<TH1F>("PassNEle","PassNEle - ak5",500,0.0,500.0);
 	MC=fs->make<TH1F>("MC","MCJets",100,0.0,500.0);
-	PFJetPtComp=fs->make<TH1F>("PFJetPtComp","ak7 PFJet Pt Compared to Hd2",800,-2.0,2.0);
-	GenJetPtComp=fs->make<TH1F>("GenJetPtComp","ak7 GenJet Pt Compared to Hd2",800,-2.0,2.0);
-	HiggsMass=fs->make<TH1F>("HiggsMass","Higgs Mass from ak7 GenJet",1500,0.0,1500.0);
-	HiggsMass2=fs->make<TH1F>("HiggsMass2","Higgs Mass from ak7 PFJet",1500,0.0,1500.0);
-	JetPts=fs->make<TH2F>("JetPts","ak7 PFJet Vs ak7 GenJet Pts",1000,0.0,1000.0,1000,0.0,1000.0);
+	PFJetPtComp=fs->make<TH1F>("PFJetPtComp","ak5 PFJet Pt Compared to Hd2",800,-2.0,2.0);
+	GenJetPtComp=fs->make<TH1F>("GenJetPtComp","ak5 GenJet Pt Compared to Hd2",800,-2.0,2.0);
+	HiggsMass=fs->make<TH1F>("HiggsMass","Higgs Mass from ak5 GenJet",1500,0.0,1500.0);
+	HiggsMass2=fs->make<TH1F>("HiggsMass2","Higgs Mass from ak5 PFJet",1500,0.0,1500.0);
+	JetPts=fs->make<TH2F>("JetPts","ak5 PFJet Vs ak5 GenJet Pts",1000,0.0,1000.0,1000,0.0,1000.0);
 	NumGoodEJ=fs->make<TH1F>("NumGoodEJ","Number of EJ per Event which Pass Scheme C",4,0.0,4.0);
 	numRecoJetMatched=0;
 	numGenJetMatched=0;
@@ -90,6 +95,11 @@ LJ::LJ(const edm::ParameterSet& iConfig){
 	numMCparts=0;
 	DeltaR=fs->make<TH1F>("dR","dR", 500,0.0,5.0);
 	numOfGoodElectronJets=0;
+	dist=fs->make<TH1F>("dist","Distance from ele to jet",300,0.0,0.3);
+	JetVsEle=fs->make<TH2F>("JetVsEle","Jet Vs Ele",1000,0.0,500.0,1000,0.0,500.0);
+	eventNum=0;
+	numMatchedJetsToEle=0;
+	numEle=0;
 }
 
 LJ::~LJ(){}
@@ -100,14 +110,15 @@ void LJ::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	using namespace edm;
 	std::cerr << "Event["<< iEvent.id() << "]\n";
 	iEvent.getByLabel("gsfElectrons", electronCollection);
-	iEvent.getByLabel("ak5GenJets", genjetCollection);
+//	iEvent.getByLabel("ak7GenJets", genjetCollection);
 //	iEvent.getByLabel("ak7GenJetsWithHd0", genjetCollection);
-	iEvent.getByLabel("genParticles", genParticleCollection);
-	iEvent.getByLabel("ak7PFJets", pfJetCollection);
+//	iEvent.getByLabel("genParticles", genParticleCollection);
+//	iEvent.getByLabel("ak7PFJets", pfJetCollection);
 //	iEvent.getByLabel("muons", muonCollection);
 	iEvent.getByLabel("ak5CaloJets", caloJetCollection);
 	iEvent.getByLabel("ak5JetTracksAssociatorAtVertex", assocCaloJetTracks);
-
+	++eventNum;
+	std::cerr << "eventNum: " << eventNum << std::endl;
 
 //	SimpleCutBasedElectronIDSelectionFunctor patSele95(SimpleCutBasedElectronIDSelectionFunctor::relIso95);
 
@@ -302,34 +313,60 @@ void LJ::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 // ############################################## Zee BACKGROUND END
 
 // ############################################## Zee BACKGROUND FROM MC START
-	CaloJet1 = NULL;
-	CaloJet2 = NULL;
+//	CaloJet1 = NULL;
+//	CaloJet2 = NULL;
+//
+//	for (unsigned int MCpos(0); MCpos < genParticleCollection->size(); ++MCpos){	// Loop over genParticles to find zee
+//		const reco::GenParticle* MCparticle = &(genParticleCollection->at(MCpos));
+//		if (MCparticle->pdgId() == 23){
+//			std::cerr << "  Found Z: " << MCparticle->pt() << "with "<< MCparticle->numberOfDaughters() <<" daughters" << std::endl;
+//			for(unsigned int j(0); j<MCparticle->numberOfDaughters(); ++j){
+//				if (abs(MCparticle->daughterRef(j)->pdgId())==11){
+//					for( unsigned int c=0; c<caloJetCollection->size(); c++ ) {
+//						const reco::CaloJet* calojet = &(caloJetCollection->at(c));
+//						if (deltaR(*calojet,*MCparticle->daughterRef(j))<0.3){	// ## Jet is 'matched' if within dR<0.3 of MCParticle->
+//							if (!CaloJet1) CaloJet1=calojet;
+//							else CaloJet2=calojet;
+//							std::cerr << "\tafter: CaloJet1= " << CaloJet1 << " CaloJet2= " << CaloJet2 << std::endl;
+//						}
+//					}
+//					std::cerr << "\tFound ele: " << MCparticle->daughterRef(j)->pt() << std::endl;
+//				}
+//			}
+//		}
+//	}
+//
+//	std::vector<const reco::CaloJet*> CaloJets;
+//	CaloJets.push_back(CaloJet1);
+//	CaloJets.push_back(CaloJet2);
+//	this->RunEJSelection(CaloJets);
+// ############################################## Zee BACKGROUND FROM MC END
 
-	for (unsigned int MCpos(0); MCpos < genParticleCollection->size(); ++MCpos){	// Loop over genParticles to find zee
-		const reco::GenParticle* MCparticle = &(genParticleCollection->at(MCpos));
-		if (MCparticle->pdgId() == 23){
-			std::cerr << "  Found Z: " << MCparticle->pt() << "with "<< MCparticle->numberOfDaughters() <<" daughters" << std::endl;
-			for(unsigned int j(0); j<MCparticle->numberOfDaughters(); ++j){
-				if (abs(MCparticle->daughterRef(j)->pdgId())==11){
-					for( unsigned int c=0; c<caloJetCollection->size(); c++ ) {
-						const reco::CaloJet* calojet = &(caloJetCollection->at(c));
-						if (deltaR(*calojet,*MCparticle->daughterRef(j))<0.3){	// ## Jet is 'matched' if within dR<0.3 of MCParticle->
-							if (!CaloJet1) CaloJet1=calojet;
-							else CaloJet2=calojet;
-							std::cerr << "\tafter: CaloJet1= " << CaloJet1 << " CaloJet2= " << CaloJet2 << std::endl;
-						}
-					}
-					std::cerr << "\tFound ele: " << MCparticle->daughterRef(j)->pt() << std::endl;
+/*
+// ############################################## e BACKGROUND FROM MC START
+	std::vector<const reco::CaloJet*> CaloJets;
+	for(std::vector<reco::GenParticle>::const_iterator MCparticle=genParticleCollection->begin(); MCparticle!=genParticleCollection->end(); ++MCparticle){
+		if (abs(MCparticle->pdgId()) == 11){
+			++numEle;
+			for( unsigned int c=0; c<caloJetCollection->size(); c++ ) {
+				const reco::CaloJet* calojet = &(caloJetCollection->at(c));
+				if (deltaR(*calojet,*MCparticle)<0.15){
+					CaloJets.push_back(calojet);
+					std::cerr << "\tdist to e: " << deltaR(*calojet,*electron)
+							<< "\n\tMaxDist: " << calojet->maxDistance()
+							<< "\n\tEle pt: " << electron->pt()
+							<< "\n\tJet pt: " << calojet->pt()
+							<< std::endl;
+					dist->Fill(deltaR(*calojet,*electron));
+					JetVsEle->Fill(electron->pt(),calojet->pt());
+					++numMatchedJetsToEle;
 				}
 			}
 		}
 	}
-
-	std::vector<const reco::CaloJet*> CaloJets;
-	CaloJets.push_back(CaloJet1);
-	CaloJets.push_back(CaloJet2);
 	this->RunEJSelection(CaloJets);
-// ############################################## Zee BACKGROUND FROM MC END
+// ############################################## e BACKGROUND FROM MC END
+*/
 
 /*
 // ############################################## Jet BACKGROUND START
@@ -365,6 +402,28 @@ void LJ::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 // ############################################## Jet BACKGROUND END
 */
 
+// ############################################## Electron BACKGROUND from Data START
+	std::vector<const reco::CaloJet*> CaloJets;
+	for(std::vector<reco::GsfElectron>::const_iterator electron=electronCollection->begin(); electron!=electronCollection->end(); ++electron){
+		for( unsigned int c=0; c<caloJetCollection->size(); c++ ) {
+			const reco::CaloJet* calojet = &(caloJetCollection->at(c));
+			if (deltaR(*calojet,*electron)<0.15){
+				CaloJets.push_back(calojet);
+				std::cerr << "\tdist to e: " << deltaR(*calojet,*electron)
+						<< "\n\tMaxDist: " << calojet->maxDistance()
+						<< "\n\tEle pt: " << electron->pt()
+						<< "\n\tJet pt: " << calojet->pt()
+						<< std::endl;
+				dist->Fill(deltaR(*calojet,*electron));
+				JetVsEle->Fill(electron->pt(),calojet->pt());
+				++numMatchedJetsToEle;
+			}
+		}
+	}
+	this->RunEJSelection(CaloJets);
+	numEle+=electronCollection->size();
+// ############################################## Electron BACKGROUND from Data END
+
 // ############################################## SIGNAL START
 //	for(std::vector<reco::GenParticle>::const_iterator MCparticle=genParticleCollection->begin(); MCparticle!=genParticleCollection->end(); ++MCparticle){
 //		if ( MCparticle->pdgId() == 3000006){	//hd2
@@ -380,7 +439,7 @@ void LJ::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 //		}
 //	}
 
-////	##### SELECTION #####
+//	##### SELECTION #####
 //	std::cerr << "Beginning Selection\n";
 //	unsigned int numOfGoodJets(0);
 //	for(std::vector<reco::PFJet>::const_iterator jet=pfJetCollection->begin(); jet!=pfJetCollection->end(); ++jet){
@@ -544,7 +603,7 @@ void LJ::RunEJSelection(std::vector<const reco::PFJet*>& PFJets){
 			int numEle(0);
 			for ( unsigned int e(0);e<electronCollection->size();++e){
 				const reco::GsfElectron* electron = &(electronCollection->at(e));
-				if (deltaR(*pfjet,*electron) < 0.5) ++numEle;   // electron in Jet ==> ak7
+				if (deltaR(*pfjet,*electron) < 0.7) ++numEle;   // electron in Jet ==> ak7
 			}
 			double ntrks = (pfjet->getTrackRefs().size());
 			if (EMF>0.95){
@@ -571,7 +630,7 @@ void LJ::RunEJSelection(std::vector<const reco::PFJet*>& PFJets){
 }
 
 void LJ::RunEJSelection(std::vector<const reco::CaloJet*>& CaloJets){
-	std::ofstream fout("070612BkgDValues.csv", std::ios_base::app);
+	std::ofstream fout("120612-EleBkgData-ak5.csv", std::ios_base::app);
 	for( unsigned  p=0; p<CaloJets.size(); p++ ) {
 		const reco::CaloJet* calojet;	// Can put these outside loop to stop mutliple constructions
 		calojet = CaloJets.at(p);
@@ -597,12 +656,10 @@ void LJ::RunEJSelection(std::vector<const reco::CaloJet*>& CaloJets){
 									<< calojet->etaetaMoment() << "\t"
 									<< calojet->etaphiMoment() << "\t"
 									<< ntrks << std::endl;
-
 						}
 						PassNEle->Fill(pt);
 						if (1==numEle && ntrks/pt<0.45){
 							if ( (pt<70 && calojet->phiphiMoment()>0.005) || calojet->phiphiMoment()>0.005-(0.0001*(pt-70)) ){
-//							if ( (pt<70 && electronCollection->at(0).phiphiMoment()>0.005) || electronCollection->at(0).phiphiMoment()>0.005-(0.0001*(pt-70)) ){
 								SCpass->Fill(pt);
 								++numOfGoodElectronJets;
 							}
@@ -621,9 +678,11 @@ void LJ::RunEJSelection(std::vector<const reco::CaloJet*>& CaloJets){
 
 void LJ::beginJob(){}
 void LJ::endJob() {
-	std::cout << "numMCparts: " << numMCparts << std::endl;
-	std::cout << "numRecoJetMatched: " << numRecoJetMatched << std::endl;
-	std::cout << "numGenJetMatched: " << numGenJetMatched << std::endl;
+//	std::cout << "numMCparts: " << numMCparts << std::endl;
+//	std::cout << "numRecoJetMatched: " << numRecoJetMatched << std::endl;
+//	std::cout << "numGenJetMatched: " << numGenJetMatched << std::endl;
+	std::cout << "numEle: " << numEle << std::endl;
+	std::cout << "numMatchedJetsToEle: " << numMatchedJetsToEle << std::endl;
 }
 
 DEFINE_FWK_MODULE(LJ);
