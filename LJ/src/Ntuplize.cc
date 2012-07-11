@@ -2,8 +2,8 @@
 // Original Author:  Kristian Hahn	Created:  Tue Aug  4 08:56:23 CEST 2009
 // Modified: Benjamin R-S
 
-#include "LJets/LJ/interface/Ntuplize.h"
-#include "LJets/LJ/interface/MCfind.h"
+#include "../interface/Ntuplize.h"
+#include "../interface/MCfind.h"
 
 Ntuplize::Ntuplize(const edm::ParameterSet& iConfig){
 	verbose= iConfig.getUntrackedParameter<bool>("verbosity",false);
