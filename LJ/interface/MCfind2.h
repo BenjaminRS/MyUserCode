@@ -1,7 +1,6 @@
 void Ntuplize2::findSignalElectrons( const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label ) {
-  //std::cerr << "starting daughter loop for a " << p.pdgId() << std::endl;
   for( reco::GenParticle::const_iterator it = p.begin(); it<p.end(); it++ ) {
-    if( p.pdgId() == 25 ) { 
+    if( p.pdgId() == 25 ) { 		//H
     	if (verbose) std::cerr << std::endl << "found a Higgs!, mass:" << p.mass() << std::endl << std::endl;
       if ( it->pdgId() == 25 )  continue;
       label = it - p.begin(); 
@@ -15,7 +14,7 @@ void Ntuplize2::findSignalElectrons( const reco::GenParticle &p, std::vector<std
 	      << std::endl;
     }
     reco::GenParticle thegen = *((reco::GenParticle*)&(*it));
-    if( abs(it->pdgId()) == 11 && it->status() == 1 ) { 
+    if( abs(it->pdgId()) == 11 && it->status() == 1 ) {		//e
       vec.push_back(std::pair<reco::GenParticle, unsigned> (thegen, label));
       if (verbose) std::cerr << "\t\t pushing back ele" << std::endl;
     }
@@ -24,9 +23,34 @@ void Ntuplize2::findSignalElectrons( const reco::GenParticle &p, std::vector<std
       findSignalElectrons( thegen, vec, label );
     }
   }
-  //  std::cerr << "returned" << std::endl;
 }
 
+void Ntuplize2::findSignalMET( const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label ) {
+  for( reco::GenParticle::const_iterator it = p.begin(); it<p.end(); it++ ) {
+    if( p.pdgId() == 25 ) {		//H
+    	if (verbose) std::cerr << std::endl << "found a Higgs!, mass:" << p.mass() << std::endl << std::endl;
+      if ( it->pdgId() == 25 )  continue;
+      label = it - p.begin();
+    }
+    if (verbose){
+    	std::cerr << "\t daughter " << it->pdgId()
+	      << "\tpx: " << it->px()
+	      << "\teta: " << it->eta()
+	      << "\tphi: " << it->phi()
+	      << "\tstatus: " << it->status()
+	      << std::endl;
+    }
+    reco::GenParticle thegen = *((reco::GenParticle*)&(*it));
+    if( abs(it->pdgId()) == 3000004 && it->status() == 1 ) {	//hd0
+      vec.push_back(std::pair<reco::GenParticle, unsigned> (thegen, label));
+      if (verbose) std::cerr << "\t\t pushing back hd0" << std::endl;
+    }
+    else {
+    	if (verbose) std::cerr << "\t\t looking some more ..." << std::endl;
+    	findSignalMET( thegen, vec, label );
+    }
+  }
+}
 
 void Ntuplize2::findWDaughters( const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned &label ) {
   for( reco::GenParticle::const_iterator it = p.begin(); it<p.end(); it++ ) {
@@ -101,9 +125,32 @@ void Ntuplize2::findZElectronsMC( const reco::GenParticle &p, std::vector<std::p
   //  std::cerr << "returned" << std::endl;
 }
 
+void Ntuplize2::findZMuonsMC( const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label ) {
+  for( reco::GenParticle::const_iterator it = p.begin(); it<p.end(); it++ ) {
+    if( p.pdgId() == 23 ) {
+    	if (verbose) std::cerr << std::endl << "found a Z!, mass:" << p.mass() << std::endl << std::endl;
+      if ( it->pdgId() == 23 )  continue;
+      label = it - p.begin();
+    }
+    if (verbose){
+		std::cerr << "\t daughter " << it->pdgId()
+			  << "\tpx: " << it->px()
+			  << "\teta: " << it->eta()
+			  << "\tphi: " << it->phi()
+			  << "\tstatus: " << it->status()
+			  << std::endl;
+    }
+    reco::GenParticle thegen = *((reco::GenParticle*)&(*it));
+    if( abs(it->pdgId()) == 13 && it->status() == 1 ) {
+      vec.push_back(std::pair<reco::GenParticle, unsigned> (thegen, label));
+      if (verbose)  std::cerr << "\t\t pushing back mu" << std::endl;
+    } else {
+    	if (verbose) std::cerr << "\t\t looking some more ..." << std::endl;
+    	findZMuonsMC( thegen, vec, label ); }
+  }
+}
 
 void Ntuplize2::findWElectronsMC( const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label ) {
-  //std::cerr << "starting daughter loop for a " << p.pdgId() << std::endl;
   for( reco::GenParticle::const_iterator it = p.begin(); it<p.end(); it++ ) {
     if( p.pdgId() == 24 ) { 
     	if (verbose){
@@ -130,5 +177,33 @@ void Ntuplize2::findWElectronsMC( const reco::GenParticle &p, std::vector<std::p
     	if (verbose) std::cerr << "\t\t looking some more ..." << std::endl;
       findWElectronsMC( thegen, vec, label ); }
   }
-  //  std::cerr << "returned" << std::endl;
+}
+
+void Ntuplize2::findWMuonsMC( const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label ) {
+  for( reco::GenParticle::const_iterator it = p.begin(); it<p.end(); it++ ) {
+    if( p.pdgId() == 24 ) {
+    	if (verbose){
+		  std::cerr << std::endl;
+		  std::cerr << "found a W!, mass:" << p.mass() << std::endl;
+		  std::cerr << std::endl;
+    	}
+      if ( it->pdgId() == 24 )  continue;
+      label = it - p.begin();
+    }
+    if (verbose){
+		std::cerr << "\t daughter " << it->pdgId()
+			  << "\tpx: " << it->px()
+			  << "\teta: " << it->eta()
+			  << "\tphi: " << it->phi()
+			  << "\tstatus: " << it->status()
+			  << std::endl;
+    }
+    reco::GenParticle thegen = *((reco::GenParticle*)&(*it));
+    if( abs(it->pdgId()) == 13 && it->status() == 1 ) {
+      vec.push_back(std::pair<reco::GenParticle, unsigned> (thegen, label));
+      if (verbose) std::cerr << "\t\t pushing back ele" << std::endl;
+    } else {
+    	if (verbose) std::cerr << "\t\t looking some more ..." << std::endl;
+    	findWMuonsMC( thegen, vec, label ); }
+  }
 }

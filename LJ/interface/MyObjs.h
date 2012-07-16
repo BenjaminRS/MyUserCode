@@ -94,6 +94,8 @@ class MyPFJet {
   double dRminpT;
   double Itrk, Ical;
   double Et_0_2;
+  double met;
+  TLorentzVector metp4;
   unsigned ntrks;
   unsigned nele;
   unsigned nphoton;
@@ -129,6 +131,8 @@ class MyCaloJet {
   double Itrk, Ical;
   double Et_0_2;
   unsigned ntrks;
+  unsigned nele;
+  unsigned neleFixed;
   float emf;
   float cr;
   float crtrans;

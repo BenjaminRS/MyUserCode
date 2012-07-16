@@ -9,11 +9,17 @@ Ntuplize2::Ntuplize2(const edm::ParameterSet& iConfig){
 	verbose= iConfig.getUntrackedParameter<bool>("verbosity",false);
 	if (verbose) std::cerr << "Ntuplize2 created ... " << std::endl;
 	tupfile = iConfig.getUntrackedParameter <std::string>("TupFileName", "tup.root");
-	do_data = do_signalMC = do_zeeMC = do_wenuMC = false;
-	do_wwMC = do_wjetMC = false;
+	do_data = do_signalMC = do_zeeMC = do_zmumuMC = do_wenuMC = do_wmunuMC = do_wwMC = do_zzMC = do_wjetMC = do_zjetMC = false;
 	run_scheme = iConfig.getUntrackedParameter <std::string>("RunningScheme", "DATA");
 	if (run_scheme == std::string("DATA")) do_data = true;
+	else if (run_scheme == std::string("WENU_MC")) do_wenuMC = true;
+	else if (run_scheme == std::string("WMUNU_MC")) do_wmunuMC = true;
+	else if (run_scheme == std::string("WW_MC")) do_wwMC = true;
+	else if (run_scheme == std::string("ZZ_MC")) do_zzMC = true;
+	else if (run_scheme == std::string("WJET_MC")) do_wjetMC = true;
+	else if (run_scheme == std::string("ZJET_MC")) do_zjetMC = true;
 	else if (run_scheme == std::string("ZEE_MC")) do_zeeMC = true;
+	else if (run_scheme == std::string("ZMUMU_MC")) do_zmumuMC = true;
 	else if (run_scheme == std::string("SIGNAL_MC")) do_signalMC = true;
 	do_electron_trigger = do_muon_trigger = do_jet_trigger = do_photon_trigger = false;
 	trigger_scheme = iConfig.getUntrackedParameter <std::string>("TriggerScheme", "");
@@ -21,6 +27,7 @@ Ntuplize2::Ntuplize2(const edm::ParameterSet& iConfig){
 	else if (trigger_scheme == std::string("electron")) do_electron_trigger = true;
 	else if (trigger_scheme == std::string("muon")) do_muon_trigger = true;
 	else if (trigger_scheme == std::string("photon")) do_photon_trigger = true;
+	eventNr=0;
 }
 
 Ntuplize2::~Ntuplize2() {}
@@ -182,6 +189,7 @@ void Ntuplize2::beginJob() {
 	tree->Branch("reco_muons", "vector<MyMuon*>", &muonVector);
 	tree->Branch("hlt_objs", "vector<MyHLTObj*>", &hltobjVector);
 	tree->Branch("gen_electrons", "vector<MyGenParticle*>", &genelectronVector);
+	tree->Branch("gen_muons", "vector<MyGenParticle*>", &genmuonVector);
 	tree->Branch("hlt", &hlt);
 	tree->Branch("met", &met);
 	tree->Branch("event_data", &evtdata);
@@ -192,26 +200,28 @@ void Ntuplize2::beginJob() {
 
 
 void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+	++eventNr;
+	if (verbose) std::cout << "EVENT["<<eventNr<<"]" << std::endl;
 	if (verbose) std::cerr << "Inside analyze ..." << std::endl;
 	using namespace edm;
-	edm::Handle <reco::TrackCollection> hGeneralTracks;							iEvent.getByLabel("generalTracks", hGeneralTracks);
-	edm::Handle <reco::GenParticleCollection> genp;								iEvent.getByLabel("genParticles", genp);
-	edm::Handle <reco::GsfElectronCollection> gsfElectrons;						iEvent.getByLabel("gsfElectrons", gsfElectrons);
-	edm::Handle <reco::PFJetCollection> pfJets;									iEvent.getByLabel("ak5PFJets", pfJets);
-	edm::Handle <reco::PFCandidateCollection> pfCandidates;						iEvent.getByLabel("particleFlow", pfCandidates);
-	edm::Handle <reco::CaloJetCollection> ak5caloJets;							iEvent.getByLabel("ak5CaloJets", ak5caloJets);
-	edm::Handle <reco::CaloJetCollection> ak7caloJets;							iEvent.getByLabel("ak7CaloJets", ak7caloJets);
+	edm::Handle <reco::TrackCollection> hGeneralTracks;				iEvent.getByLabel("generalTracks", hGeneralTracks);
+	edm::Handle <reco::GenParticleCollection> genp;					iEvent.getByLabel("genParticles", genp);
+	edm::Handle <reco::GsfElectronCollection> gsfElectrons;				iEvent.getByLabel("gsfElectrons", gsfElectrons);
+	edm::Handle <reco::PFJetCollection> pfJets;					iEvent.getByLabel("ak5PFJets", pfJets);
+	edm::Handle <reco::PFCandidateCollection> pfCandidates;				iEvent.getByLabel("particleFlow", pfCandidates);
+	edm::Handle <reco::CaloJetCollection> ak5caloJets;				iEvent.getByLabel("ak5CaloJets", ak5caloJets);
+	edm::Handle <reco::CaloJetCollection> ak7caloJets;				iEvent.getByLabel("ak7CaloJets", ak7caloJets);
 	edm::Handle <reco::JetTracksAssociationCollection> ak5assocCaloJetTracks;	iEvent.getByLabel("ak5JetTracksAssociatorAtVertex", ak5assocCaloJetTracks);
 	edm::Handle <reco::JetTracksAssociationCollection> ak7assocCaloJetTracks;	iEvent.getByLabel("ak7JetTracksAssociatorAtVertex", ak7assocCaloJetTracks);
-	edm::Handle <reco::JetTagCollection> bTag_secvtx_Handle;					iEvent.getByLabel("combinedSecondaryVertexBJetTags", bTag_secvtx_Handle);
-	edm::Handle <reco::JetTagCollection> bTag_softele_Handle;					iEvent.getByLabel("softElectronByIP3dBJetTags", bTag_softele_Handle);
-	edm::Handle <reco::JetTagCollection> bTag_jetprob_Handle;					iEvent.getByLabel("jetBProbabilityBJetTags", bTag_jetprob_Handle);
-	edm::Handle <reco::PFMETCollection> pfMetCollection;						iEvent.getByLabel("pfMet", pfMetCollection);
-	edm::Handle <reco::CaloMETCollection> caloMetCollection;					iEvent.getByLabel("corMetGlobalMuons", caloMetCollection);
-	edm::Handle <reco::MuonCollection> recoMuons;								iEvent.getByLabel("muons", recoMuons);
-	edm::Handle <reco::PhotonCollection> Photons;								iEvent.getByLabel("photons", Photons);
-	edm::Handle <edm::TriggerResults> HLTR;										iEvent.getByLabel(edm::InputTag("TriggerResults", "", "HLT"), HLTR);
-	edm::Handle <trigger::TriggerEvent> trgEvent;								iEvent.getByLabel(edm::InputTag("hltTriggerSummaryAOD", "", "HLT"), trgEvent);
+	edm::Handle <reco::JetTagCollection> bTag_secvtx_Handle;			iEvent.getByLabel("combinedSecondaryVertexBJetTags", bTag_secvtx_Handle);
+	edm::Handle <reco::JetTagCollection> bTag_softele_Handle;			iEvent.getByLabel("softElectronByIP3dBJetTags", bTag_softele_Handle);
+	edm::Handle <reco::JetTagCollection> bTag_jetprob_Handle;			iEvent.getByLabel("jetBProbabilityBJetTags", bTag_jetprob_Handle);
+	edm::Handle <reco::PFMETCollection> pfMetCollection;				iEvent.getByLabel("pfMet", pfMetCollection);
+	edm::Handle <reco::CaloMETCollection> caloMetCollection;			iEvent.getByLabel("corMetGlobalMuons", caloMetCollection);
+	edm::Handle <reco::MuonCollection> recoMuons;					iEvent.getByLabel("muons", recoMuons);
+	edm::Handle <reco::PhotonCollection> Photons;					iEvent.getByLabel("photons", Photons);
+	edm::Handle <edm::TriggerResults> HLTR;						iEvent.getByLabel(edm::InputTag("TriggerResults", "", "HLT"), HLTR);
+	edm::Handle <trigger::TriggerEvent> trgEvent;					iEvent.getByLabel(edm::InputTag("hltTriggerSummaryAOD", "", "HLT"), trgEvent);
 	std::vector <trigger::TriggerObject> trigObjs;		// is this used?
 
 	if (!do_data) {
@@ -312,6 +322,252 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 //#################################################################
 //########################## Start of MC ##########################
 
+//########################### WW MC ###########################
+	if (do_wwMC) {
+		if (verbose) std::cerr << "clearing gen vecs ... " << std::endl;
+		genpvec.clear();
+		genpVector->clear();
+		if (verbose) std::cerr << "gonna loop ... " << std::endl;
+		unsigned nlabels = 0, old_label = 999;
+		unsigned Wcount = 0;
+		for (unsigned i = 0; i < genp->size(); i++) {
+			if (verbose) std::cerr << "i: " << i << "\tpdg: " << ((*genp)[i]).pdgId()
+					<< "\tstatus: " << ((*genp)[i]).status() << "\tpt: "
+					<< ((*genp)[i]).pt() << "\teta: " << ((*genp)[i]).eta()
+					<< std::endl;
+			if (abs(((*genp)[i]).pdgId()) == 24 && ((*genp)[i]).status() == 3) {
+				findWDaughters(((*genp)[i]), genpvec, Wcount);
+				Wcount++;
+			}
+		}
+		if (verbose) std::cerr << "how many gen particles : " << genpvec.size() << std::endl;
+		for (unsigned j = 0; j < genpvec.size(); j++) {
+			if (verbose) std::cerr << "j: " << j
+					<< "\tpdg: " << genpvec[j].first.pdgId()
+					<< "\tpt: " << elevec[j].first.pt()
+					<< "\teta: " << elevec[j].first.eta()
+					<< "\tphi: " << elevec[j].first.phi()
+					<< "\tlabel: " << elevec[j].second
+					<< std::endl;
+			MyGenParticle * g = new MyGenParticle();
+			TLorentzVector tvec(0, 0, 0, 0);
+			tvec.SetPtEtaPhiE(genpvec[j].first.pt(), genpvec[j].first.eta(),genpvec[j].first.phi(), genpvec[j].first.energy());
+			g->pdg = genpvec[j].first.pdgId();
+			g->p4 = tvec;
+			g->label = genpvec[j].second;
+			genpVector->push_back(g);
+			if (g->label != old_label) {
+				old_label = g->label;
+				nlabels++;
+			}
+		}
+		if (verbose) std::cerr << "checking again ... " << std::endl;
+		for (unsigned y = 0; y < genpVector->size(); y++) {
+			if (verbose) std::cerr << "y: " << y << "\tpdg: " << (*genpVector)[y]->pdg
+					<< "\tpt: " << (*genpVector)[y]->p4.Pt() << std::endl;
+		}
+	} // do_WW
+
+//########################### ZZ MC ###########################
+	if (do_zzMC) {
+		if (verbose) std::cerr << "clearing gen vecs ... " << std::endl;
+		genpvec.clear();
+		genpVector->clear();
+		if (verbose) std::cerr << "gonna loop ... " << std::endl;
+		unsigned nlabels = 0, old_label = 999;
+		unsigned Zcount = 0;
+		for (unsigned i = 0; i < genp->size(); i++) {
+			if (verbose) std::cerr << "i: " << i << "\tpdg: " << ((*genp)[i]).pdgId()
+					<< "\tstatus: " << ((*genp)[i]).status() << "\tpt: "
+					<< ((*genp)[i]).pt() << "\teta: " << ((*genp)[i]).eta()
+					<< std::endl;
+			if (abs(((*genp)[i]).pdgId()) == 23 && ((*genp)[i]).status() == 3) {
+				findZDaughters(((*genp)[i]), genpvec, Zcount);
+				Zcount++;
+			}
+		}
+		if (verbose) std::cerr << "how many gen particles : " << genpvec.size() << std::endl;
+		for (unsigned j = 0; j < genpvec.size(); j++) {
+			if (verbose) std::cerr << "j: " << j
+					<< "\tpdg: " << genpvec[j].first.pdgId()
+					<< "\tpt: " << elevec[j].first.pt()
+					<< "\teta: " << elevec[j].first.eta()
+					<< "\tphi: " << elevec[j].first.phi()
+					<< "\tlabel: " << elevec[j].second
+					<< std::endl;
+			MyGenParticle * g = new MyGenParticle();
+			TLorentzVector tvec(0, 0, 0, 0);
+			tvec.SetPtEtaPhiE(genpvec[j].first.pt(), genpvec[j].first.eta(),genpvec[j].first.phi(), genpvec[j].first.energy());
+			g->pdg = genpvec[j].first.pdgId();
+			g->p4 = tvec;
+			g->label = genpvec[j].second;
+			genpVector->push_back(g);
+			if (g->label != old_label) {
+				old_label = g->label;
+				nlabels++;
+			}
+		}
+		if (verbose) std::cerr << "checking again ... " << std::endl;
+		for (unsigned y = 0; y < genpVector->size(); y++) {
+			if (verbose) std::cerr << "y: " << y << "\tpdg: " << (*genpVector)[y]->pdg
+					<< "\tpt: " << (*genpVector)[y]->p4.Pt() << std::endl;
+		}
+	} // do_ZZ
+
+//########################### WJet MC ###########################
+	if (do_wjetMC) {
+		if (verbose) if (verbose) std::cerr << "clearing gen vecs ... " << std::endl;
+		genpvec.clear();
+		genpVector->clear();
+		if (verbose) std::cerr << "gonna loop ... " << std::endl;
+		unsigned nlabels = 0, old_label = 999;
+		unsigned Wcount = 0;
+		for (unsigned i = 0; i < genp->size(); i++) {
+			if (verbose) std::cerr << "i: " << i << "\tpdg: " << ((*genp)[i]).pdgId()
+							<< "\tstatus: " << ((*genp)[i]).status() << "\tpt: "
+							<< ((*genp)[i]).pt() << "\teta: " << ((*genp)[i]).eta()
+							<< std::endl;
+			if (abs(((*genp)[i]).pdgId()) == 24 && ((*genp)[i]).status() == 3) {
+				findWDaughters(((*genp)[i]), genpvec, Wcount);
+				Wcount++;
+			}
+		}
+		if (verbose) std::cerr << "how many gen particles : " << genpvec.size() << std::endl;
+		for (unsigned j = 0; j < genpvec.size(); j++) {
+			if (verbose) std::cerr << "j: " << j
+					<< "\tpdg: " << genpvec[j].first.pdgId()
+					<< "\tpt: " << elevec[j].first.pt()
+					<< "\teta: " << elevec[j].first.eta()
+					<< "\tphi: " << elevec[j].first.phi()
+					<< "\tlabel: " << elevec[j].second
+					<< std::endl;
+			MyGenParticle * g = new MyGenParticle();
+			TLorentzVector tvec(0, 0, 0, 0);
+			tvec.SetPtEtaPhiE(genpvec[j].first.pt(), genpvec[j].first.eta(),genpvec[j].first.phi(), genpvec[j].first.energy());
+			g->pdg = genpvec[j].first.pdgId();
+			g->p4 = tvec;
+			g->label = genpvec[j].second;
+			genpVector->push_back(g);
+			if (g->label != old_label) {
+				old_label = g->label;
+				nlabels++;
+			}
+		}
+		if (verbose) std::cerr << "checking again ... " << std::endl;
+		for (unsigned y = 0; y < genpVector->size(); y++) {
+			if (verbose) std::cerr << "y: " << y << "\tpdg: " << (*genpVector)[y]->pdg << "\tpt: " << (*genpVector)[y]->p4.Pt() << std::endl;
+		}
+	} // do_Wjet
+
+//########################### ZJet MC ###########################
+	if (do_zjetMC) {
+		if (verbose) if (verbose) std::cerr << "clearing gen vecs ... " << std::endl;
+		genpvec.clear();
+		genpVector->clear();
+		if (verbose) std::cerr << "gonna loop ... " << std::endl;
+		unsigned nlabels = 0, old_label = 999;
+		unsigned Zcount = 0;
+		for (unsigned i = 0; i < genp->size(); i++) {
+			if (verbose) std::cerr << "i: " << i << "\tpdg: " << ((*genp)[i]).pdgId()
+							<< "\tstatus: " << ((*genp)[i]).status() << "\tpt: "
+							<< ((*genp)[i]).pt() << "\teta: " << ((*genp)[i]).eta()
+							<< std::endl;
+			if (abs(((*genp)[i]).pdgId()) == 23 && ((*genp)[i]).status() == 3) {
+				findZDaughters(((*genp)[i]), genpvec, Zcount);
+				Zcount++;
+			}
+		}
+		if (verbose) std::cerr << "how many gen particles : " << genpvec.size() << std::endl;
+		for (unsigned j = 0; j < genpvec.size(); j++) {
+			if (verbose) std::cerr << "j: " << j
+					<< "\tpdg: " << genpvec[j].first.pdgId()
+					<< "\tpt: " << elevec[j].first.pt()
+					<< "\teta: " << elevec[j].first.eta()
+					<< "\tphi: " << elevec[j].first.phi()
+					<< "\tlabel: " << elevec[j].second
+					<< std::endl;
+			MyGenParticle * g = new MyGenParticle();
+			TLorentzVector tvec(0, 0, 0, 0);
+			tvec.SetPtEtaPhiE(genpvec[j].first.pt(), genpvec[j].first.eta(),genpvec[j].first.phi(), genpvec[j].first.energy());
+			g->pdg = genpvec[j].first.pdgId();
+			g->p4 = tvec;
+			g->label = genpvec[j].second;
+			genpVector->push_back(g);
+			if (g->label != old_label) {
+				old_label = g->label;
+				nlabels++;
+			}
+		}
+		if (verbose) std::cerr << "checking again ... " << std::endl;
+		for (unsigned y = 0; y < genpVector->size(); y++) {
+			if (verbose) std::cerr << "y: " << y << "\tpdg: " << (*genpVector)[y]->pdg << "\tpt: " << (*genpVector)[y]->p4.Pt() << std::endl;
+		}
+	} // do_Zjet
+
+//########################### Wenu MC ###########################
+	if (do_wenuMC) {
+		elevec.clear();
+		genelectronVector->clear();
+		unsigned nlabels = 0, old_label = 999;
+		for (unsigned i = 0; i < genp->size(); i++) {
+			if (abs(((*genp)[i]).pdgId()) == 24 && ((*genp)[i]).status() == 3) {
+				unsigned label;
+				findWElectronsMC(((*genp)[i]), elevec, label);
+				if (verbose) std::cerr << "how many electrons : " << elevec.size() << std::endl;
+				for (unsigned j = 0; j < elevec.size(); j++) {
+					if (verbose) std::cerr << "j: " << j
+							<< "\tpt: " << elevec[j].first.pt()
+							<< "\teta: " << elevec[j].first.eta()
+							<< "\tphi: " << elevec[j].first.phi()
+							<< "\tlabel: " << elevec[j].second
+							<< std::endl;
+					MyGenParticle* gele = new MyGenParticle();
+					TLorentzVector tvec(0, 0, 0, 0);
+					tvec.SetPtEtaPhiE(elevec[j].first.pt(),elevec[j].first.eta(), elevec[j].first.phi(),elevec[j].first.energy());
+					gele->p4 = tvec;
+					gele->label = elevec[j].second;
+					genelectronVector->push_back(gele);
+					if (gele->label != old_label) {
+						old_label = gele->label;
+						nlabels++;
+					}
+				}
+			}
+		}
+	} // do_wenu
+
+//########################### Wmunu MC ###########################
+	if (do_wenuMC) {
+		muvec.clear();
+		genmuonVector->clear();
+		unsigned nlabels = 0, old_label = 999;
+		for (unsigned i = 0; i < genp->size(); i++) {
+			if (abs(((*genp)[i]).pdgId()) == 24 && ((*genp)[i]).status() == 3) {
+				unsigned label;
+				findWMuonsMC(((*genp)[i]), muvec, label);
+				if (verbose) std::cerr << "how many muons : " << muvec.size() << std::endl;
+				for (unsigned j = 0; j < muvec.size(); j++) {
+					if (verbose) std::cerr << "j: " << j
+							<< "\tpt: " << muvec[j].first.pt()
+							<< "\teta: " << muvec[j].first.eta()
+							<< "\tphi: " << muvec[j].first.phi()
+							<< "\tlabel: " << muvec[j].second
+							<< std::endl;
+					MyGenParticle* gmu = new MyGenParticle();
+					TLorentzVector tvec(0, 0, 0, 0);
+					tvec.SetPtEtaPhiE(muvec[j].first.pt(),muvec[j].first.eta(), muvec[j].first.phi(),muvec[j].first.energy());
+					gmu->p4 = tvec;
+					gmu->label = muvec[j].second;
+					genelectronVector->push_back(gmu);
+					if (gmu->label != old_label) {
+						old_label = gmu->label;
+						nlabels++;
+					}
+				}
+			}
+		}
+	} // do_wmunu
+
 //########################### Zee MC ###########################
 	if (do_zeeMC) {
 		elevec.clear();
@@ -344,16 +600,52 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		}
 	} // do_zeeMC
 
+//########################### Zmumu MC ###########################
+	if (do_zmumuMC) {
+		muvec.clear();
+		genmuonVector->clear();
+		unsigned nlabels = 0, old_label = 999;
+		for (unsigned i = 0; i < genp->size(); i++) {
+			if (abs(((*genp)[i]).pdgId()) == 23 && ((*genp)[i]).status() == 3) {
+				unsigned label;
+				findZMuonsMC(((*genp)[i]), muvec, label);
+				if (verbose) std::cerr << "how many muons : " << muvec.size() << std::endl;
+				for (unsigned j = 0; j < muvec.size(); j++) {
+					if (verbose) std::cerr << "j: " << j
+							<< "\tpt: " << muvec[j].first.pt()
+							<< "\teta: " << muvec[j].first.eta()
+							<< "\tphi: " << muvec[j].first.phi()
+							<< "\tlabel: " << muvec[j].second
+							<< std::endl;
+					MyGenParticle* gmu = new MyGenParticle();
+					TLorentzVector tvec(0, 0, 0, 0);
+					tvec.SetPtEtaPhiE(muvec[j].first.pt(),muvec[j].first.eta(), muvec[j].first.phi(),muvec[j].first.energy());
+					gmu->p4 = tvec;
+					gmu->label = muvec[j].second;
+					genmuonVector->push_back(gmu);
+					if (gmu->label != old_label) {
+						old_label = gmu->label;
+						nlabels++;
+					}
+				}
+			}
+		}
+	} // do_zmumuMC
+
 //########################### H2EJ MC ###########################
 	if (do_signalMC) {
-		elevec.clear();
+		if (verbose) std::cerr << "IN SIGNAL SECTION\n";
 		if (verbose) std::cerr << "clearing gen vecs ... " << std::endl;
+		elevec.clear();
+		hd0vec.clear();
 		genpvec.clear();
+		genSigMetVector.clear();
 		genpVector->clear();
 		genelectronVector->clear();
 		unsigned nlabels = 0, nWlabels = 0, old_label = 999;
 //		unsigned Wcount(0);
 		unsigned int Zcount(0);
+		if (verbose) std::cerr << "Finding Particles" << std::endl;
 		for (unsigned i = 0; i < genp->size(); i++) {
 			// change for pythia8
 //			if (abs(((*genp)[i]).pdgId()) == 24	&& ((*genp)[i]).status() == 62) {	// Loop over W's  -- not sure what status 62 is?  ===> WH not looked at for now
@@ -367,10 +659,13 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 			}
 			// change for pythia8
 			if (abs(((*genp)[i]).pdgId()) == 25	&& ((*genp)[i]).status() == 62) { // If Higgs
+//				std::cerr << "Finding Higgs properties" << std::endl;
 				unsigned label;
 				findSignalElectrons(((*genp)[i]), elevec, label); // Going down through the decay chain to find e's
+				findSignalMET(((*genp)[i]), hd0vec, label);
+				if (verbose) std::cerr << "how many hd0 : " << hd0vec.size() << std::endl;
 				if (verbose) std::cerr << "how many electrons : " << elevec.size() << std::endl;
-				for (unsigned j = 0; j < elevec.size(); j++) {
+				for (unsigned j = 0; j < elevec.size(); j++) {	//Signal Electrons in EJ
 					if (verbose){
 						std::cerr << "j: " << j
 								<< "\tpt: " << elevec[j].first.pt()
@@ -385,10 +680,18 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 					gele->p4 = tvec;
 					gele->label = elevec[j].second;
 					genelectronVector->push_back(gele);
-					if (gele->label != old_label) {
+					if (gele->label != old_label) {	//we have switched to a different EJ
 						old_label = gele->label;
 						nlabels++;
 					}
+				}
+				for (unsigned h = 0; h < hd0vec.size(); h++) {	//Signal MET in EJ
+					MyGenParticle* ghd0 = new MyGenParticle();
+					TLorentzVector tvec(0, 0, 0, 0);
+					tvec.SetPtEtaPhiE(hd0vec[h].first.pt(),hd0vec[h].first.eta(), hd0vec[h].first.phi(),hd0vec[h].first.energy());
+					ghd0->p4 = tvec;
+					ghd0->label = hd0vec[h].second;
+					genSigMetVector.push_back(ghd0);
 				}
 			}
 		}
@@ -429,7 +732,8 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		// find smallest cone that will fit the electrons ...
 		genjetVector->clear();
 //		calogenjetVector->clear();
-		if (elevec.size()) {	// The genparticle vector filled by findSignalElectrons
+		if (elevec.size()) {	// The (genparticle,int) vector filled by findSignalElectrons
+			std::vector<double> energyFromEles;
 			unsigned jetnum = -1;
 			std::vector < math::XYZTLorentzVector > centroids;
 			std::vector<unsigned> neles;
@@ -439,10 +743,12 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 				if (elevec[j].second != jetnum) {
 					centroids.push_back(math::XYZTLorentzVector(0, 0, 0, 0));
 					neles.push_back(0);
-					jetnum = elevec[j].second;
+					energyFromEles.push_back(0);
+					jetnum = elevec[j].second;	//to only find the two EJs
 				}
 				centroids[jetnum] += math::XYZTLorentzVector(elevec[j].first.px(), elevec[j].first.py(),elevec[j].first.pz(), elevec[j].first.p()); // massless hypothesis ;
 				neles[jetnum] += 1;
+				energyFromEles[jetnum]+=elevec[j].first.energy();
 			} // loop over gen eles ...
 
 			if (verbose) std::cout << "N centroids : " << centroids.size() << std::endl;
@@ -452,7 +758,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 				TVector3 axis;
 				axis.SetPtEtaPhi(centroids[j].Pt(), centroids[j].Eta(), centroids[j].Phi());
 				double maxdR = -1;
-				unsigned maxindex;
+				unsigned maxindex(0);
 				double maxdRminpT = -1;
 				unsigned maxindexminpT;
 				for (unsigned k = 0; k < elevec.size(); k++) {
@@ -474,13 +780,31 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 				} // loop over gen eles ...
 				if (verbose) std::cout << "\t--> max dist: " << maxdR << "\t--> max dist min pT: " << maxdRminpT << "\t index: " << maxindex << std::endl;
 				// save ...
+//				if (verbose) std::cout << "energyFromEles: " << energyFromEles[j] << std::endl;
+				double sigMET(0);
+				TLorentzVector sigMETp4(0,0,0,0);
+				if (verbose) std::cout << "genSigMetVector.size(): " << genSigMetVector.size() << std::endl;
+				for (unsigned metIndex = 0; metIndex < genSigMetVector.size(); metIndex++) {
+					MyGenParticle* m = genSigMetVector.at(metIndex);
+					if (m->label == j){
+						sigMET+=m->p4.Pt();
+						sigMETp4 += m->p4;
+//						sigMETp4 += math::XYZTLorentzVector(m->p4.Px(),m->p4.Py(),m->p4.Pz(),m->p4.Energy());
+					}
+				}
+				if (verbose) std::cout << "sigMET: " << sigMET << std::endl;
 				MyPFJet* genjet = new MyPFJet();
-				genjet->p4 = TLorentzVector(axis, 0);
+				genjet->p4 = TLorentzVector(axis, energyFromEles[j]);
 				genjet->dR = maxdR;
 				genjet->dRminpT = maxdRminpT;
 				genjet->nele = neles[j];
+				genjet->met = sigMET;
+				genjet->metp4 = sigMETp4;
+//				genjet->metp4 = math::XYZTLorentzVector(sigMETp4.p4.Px(),sigMETp4.p4.Py(),sigMETp4.p4.Pz(),sigMETp4.p4.Energy());
 				genjet->index = j;
 				genjetVector->push_back(genjet);
+				if (verbose) std::cout << "genjet->p4.Energy(): " << genjet->p4.Energy() << std::endl;
+				if (verbose) std::cout << "genjetVector->size(): " << genjetVector->size() << std::endl;
 //				MyCaloJet* calogenjet = new MyCaloJet();
 //				calogenjet->p4 = TLorentzVector(axis, 0);
 //				calogenjet->dR = maxdR;
@@ -541,23 +865,36 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		double scale = 1.0;
 		correctedJet.scaleEnergy(scale); // apply correction
 
-		if (verbose) std::cout << "\tpt: " << (*ak5caloJets)[i].pt();
-		if (verbose) std::cout << "\tpt (cor): " << correctedJet.pt();
-		if (verbose) std::cout << "\teta: " << (*ak5caloJets)[i].eta();
-		if (verbose) std::cout << "\tphi: " << (*ak5caloJets)[i].phi();
-		if (verbose) std::cout << "\temf: " << (*ak5caloJets)[i].emEnergyFraction();
-		if (verbose) std::cout << "\tcr: " << sumPt / (*ak5caloJets)[i].pt();
-		if (verbose) std::cout << std::endl;
+		if (verbose) std::cout << "\tpt: " << (*ak5caloJets)[i].pt()
+								<< "\tpt (cor): " << correctedJet.pt()
+								<< "\teta: " << (*ak5caloJets)[i].eta()
+								<< "\tphi: " << (*ak5caloJets)[i].phi()
+								<< "\temf: " << (*ak5caloJets)[i].emEnergyFraction()
+								<< "\tcr: " << sumPt / (*ak5caloJets)[i].pt()
+								<< std::endl;
+
+		unsigned int numEle(0), numFixedEle(0);
+		if (verbose) std::cout << "\t###gsfElectrons->size(): " << gsfElectrons->size() << std::endl;
+		for (size_t ele = 0; ele < gsfElectrons->size(); ++ele) {
+			double deltR = deltaR((*ak5caloJets)[i].p4(),(*gsfElectrons)[ele].p4());
+			if (verbose) std::cout << "\t\t###deltR: " << deltR << std::endl;
+			if (deltR < (*ak5caloJets)[i].maxDistance()) ++numEle;   // electron in Jet ==> within jet's max dist
+			if (deltR < 0.5) ++numFixedEle;   // electron in Jet ==> within fixed cone size
+		}
+		if (verbose) std::cout << "\t###finished filling numEle: " << numEle << " and numFixedEle: " << numFixedEle << std::endl;
 
 		MyCaloJet* calojet = new MyCaloJet;
 		calojet->p4 = TLorentzVector(0, 0, 0, 0);
 		calojet->p4.SetPtEtaPhiE((*ak5caloJets)[i].pt(), (*ak5caloJets)[i].eta(), (*ak5caloJets)[i].phi(), (*ak5caloJets)[i].energy());
 		calojet->p4cor.SetPtEtaPhiE(correctedJet.pt(), correctedJet.eta(), correctedJet.phi(), correctedJet.energy());
+		calojet->energy = (*ak5caloJets)[i].energy();
 		calojet->et = (*ak5caloJets)[i].et();
 		calojet->area = (*ak5caloJets)[i].jetArea();
 		calojet->etaeta = (*ak5caloJets)[i].etaetaMoment();
 		calojet->phiphi = (*ak5caloJets)[i].phiphiMoment();
 		calojet->etaphi = (*ak5caloJets)[i].etaphiMoment();
+		calojet->nele = numEle;
+		calojet->neleFixed = numFixedEle;
 		calojet->emf = (*ak5caloJets)[i].emEnergyFraction();
 		calojet->ntrks = ntrks;
 		calojet->dR = (*ak5caloJets)[i].maxDistance();
@@ -633,23 +970,35 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		double scale = 1.0;
 		correctedJet.scaleEnergy(scale); // apply correction
 
-		if (verbose) std::cout << "\tpt: " << (*ak7caloJets)[i].pt();
-		if (verbose) std::cout << "\tpt (cor): " << correctedJet.pt();
-		if (verbose) std::cout << "\teta: " << (*ak7caloJets)[i].eta();
-		if (verbose) std::cout << "\tphi: " << (*ak7caloJets)[i].phi();
-		if (verbose) std::cout << "\temf: " << (*ak7caloJets)[i].emEnergyFraction();
-		if (verbose) std::cout << "\tcr: " << sumPt / (*ak7caloJets)[i].pt();
-		if (verbose) std::cout << std::endl;
+		if (verbose) std::cout << "\tpt: " << (*ak7caloJets)[i].pt()
+								<< "\tpt (cor): " << correctedJet.pt()
+								<< "\teta: " << (*ak7caloJets)[i].eta()
+								<< "\tphi: " << (*ak7caloJets)[i].phi()
+								<< "\temf: " << (*ak7caloJets)[i].emEnergyFraction()
+								<< "\tcr: " << sumPt / (*ak7caloJets)[i].pt()
+								<< std::endl;
+
+		unsigned int numEle(0), numFixedEle(0);
+		if (verbose) std::cout << "\t###gsfElectrons->size(): " << gsfElectrons->size() << std::endl;
+		for (size_t ele = 0; ele < gsfElectrons->size(); ++ele) {
+			double deltR = deltaR((*ak7caloJets)[i].p4(),(*gsfElectrons)[ele].p4());
+			if (deltR < (*ak7caloJets)[i].maxDistance()) ++numEle;   // electron in Jet ==> within jet's max dist
+			if (deltR < 0.7) ++numFixedEle;   // electron in Jet ==> within fixed cone size
+		}
+		if (verbose) std::cout << "\t###finished filling numEle: " << numEle << " and numFixedEle: " << numFixedEle << std::endl;
 
 		MyCaloJet* calojet = new MyCaloJet;
 		calojet->p4 = TLorentzVector(0, 0, 0, 0);
 		calojet->p4.SetPtEtaPhiE((*ak7caloJets)[i].pt(), (*ak7caloJets)[i].eta(), (*ak7caloJets)[i].phi(), (*ak7caloJets)[i].energy());
 		calojet->p4cor.SetPtEtaPhiE(correctedJet.pt(), correctedJet.eta(), correctedJet.phi(), correctedJet.energy());
+		calojet->energy = (*ak7caloJets)[i].energy();
 		calojet->et = (*ak7caloJets)[i].et();
 		calojet->area = (*ak7caloJets)[i].jetArea();
 		calojet->etaeta = (*ak7caloJets)[i].etaetaMoment();
 		calojet->phiphi = (*ak7caloJets)[i].phiphiMoment();
 		calojet->etaphi = (*ak7caloJets)[i].etaphiMoment();
+		calojet->nele = numEle;
+		calojet->neleFixed = numFixedEle;
 		calojet->emf = (*ak7caloJets)[i].emEnergyFraction();
 		calojet->ntrks = ntrks;
 		calojet->dR = (*ak7caloJets)[i].maxDistance();
@@ -785,7 +1134,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 				else{	if (verbose) std::cerr << "\tpf gele IS  valid, skipping ... " << std::endl;}
 
 				bool matchedEle = false;
-				unsigned gsfIndex;
+				unsigned gsfIndex(0);
 				reco::GsfElectron gele;
 				for (unsigned e = 0; e < gsfElectrons->size(); e++) {
 					if (gtrk == (*gsfElectrons)[e].gsfTrack()) {
@@ -914,7 +1263,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 //		if (verbose) std::cout << "\tfflags: " << std::hex << (*gsfElectrons)[i].fiducialFlags() << std::dec;
 		if (verbose) std::cout << std::endl;
 		MyRecoElectron * ele = new MyRecoElectron;
-		ele->p4 = TLorentzVector(0, 0, 0, 9);
+		ele->p4 = TLorentzVector(0, 0, 0, 0);
 		ele->p4.SetPtEtaPhiE((*gsfElectrons)[i].pt(), (*gsfElectrons)[i].eta(),	(*gsfElectrons)[i].phi(), (*gsfElectrons)[i].energy());
 		ele->sigieie = (*gsfElectrons)[i].sigmaIetaIeta();
 		ele->deta = (*gsfElectrons)[i].deltaEtaSuperClusterTrackAtVtx();

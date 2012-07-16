@@ -73,6 +73,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 
@@ -93,13 +94,16 @@ public:
 	std::string tupfile;
 	std::string run_scheme;
 	std::string trigger_scheme;
-	bool do_data, do_signalMC, do_zeeMC, do_wenuMC, do_wwMC, do_wjetMC;
+	bool do_data, do_signalMC, do_zeeMC, do_zmumuMC, do_wenuMC, do_wmunuMC, do_wwMC, do_zzMC, do_wjetMC, do_zjetMC;
 	bool do_jet_trigger, do_electron_trigger, do_muon_trigger, do_photon_trigger;
 	std::vector<std::pair<reco::GenParticle, unsigned> > elevec;
+	std::vector<std::pair<reco::GenParticle, unsigned> > muvec;
+	std::vector<std::pair<reco::GenParticle, unsigned> > hd0vec;
 	std::vector<std::pair<reco::GenParticle, unsigned> > genpvec;
 	std::vector<MyHLTObj*> * hltobjVector;
 	std::vector<MyGenParticle*> * genpVector;
 	std::vector<MyGenParticle*> * genelectronVector;
+	std::vector<MyGenParticle*> genSigMetVector;
 	std::vector<MyGenParticle*> * genmuonVector;
 	std::vector<MyRecoElectron*> * recoelectronVector;
 //	std::vector<MyCaloJet*> * calogenjetVector;
@@ -121,10 +125,14 @@ public:
 	std::vector<std::string> triggerNames_;
 	std::vector<std::string> lastFilterLabels_;
 	std::vector<std::vector<std::string> > allFilterLabels_;
+	unsigned eventNr;
 private:
 	void findSignalElectrons(const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label);
+	void findSignalMET(const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label);
 	void findZElectronsMC(const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label);
+	void findZMuonsMC(const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label);
 	void findWElectronsMC(const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label);
+	void findWMuonsMC(const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label);
 	void findWDaughters(const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label);
 	void findZDaughters(const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label);
 	virtual void beginJob();
