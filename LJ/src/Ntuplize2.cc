@@ -1,6 +1,6 @@
 // Package:    Ntuplize2
 // Original Author:  Kristian Hahn	Created:  Tue Aug  4 08:56:23 CEST 2009
-// Modified: Benjamin R-S
+// Modified: Benjamin R-S, Chris M
 
 #include "../interface/Ntuplize2.h"
 #include "../interface/MCfind2.h"
@@ -170,6 +170,7 @@ void Ntuplize2::beginJob() {
 	ak7calojetVector = new std::vector<MyCaloJet*>();
 	genjetVector = new std::vector<MyPFJet*>();
 	muonVector = new std::vector<MyMuon*>();
+	SCVector = new std::vector<MySC*>();
 	photonVector = new std::vector<MyPhoton*>();
 	hltobjVector = new std::vector<MyHLTObj*>();
 	puVector = new std::vector<MyPU*>();
@@ -190,6 +191,7 @@ void Ntuplize2::beginJob() {
 	tree->Branch("hlt_objs", "vector<MyHLTObj*>", &hltobjVector);
 	tree->Branch("gen_electrons", "vector<MyGenParticle*>", &genelectronVector);
 	tree->Branch("gen_muons", "vector<MyGenParticle*>", &genmuonVector);
+	tree->Branch("superclusters", "vector<MySC*>", &SCVector);
 	tree->Branch("hlt", &hlt);
 	tree->Branch("met", &met);
 	tree->Branch("event_data", &evtdata);
@@ -218,7 +220,12 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 	edm::Handle <reco::JetTagCollection> bTag_jetprob_Handle;			iEvent.getByLabel("jetBProbabilityBJetTags", bTag_jetprob_Handle);
 	edm::Handle <reco::PFMETCollection> pfMetCollection;				iEvent.getByLabel("pfMet", pfMetCollection);
 	edm::Handle <reco::CaloMETCollection> caloMetCollection;			iEvent.getByLabel("corMetGlobalMuons", caloMetCollection);
-	edm::Handle <reco::MuonCollection> recoMuons;					iEvent.getByLabel("muons", recoMuons);
+	edm::Handle<reco::SuperClusterCollection> SCCollectionEE;
+iEvent.getByLabel("correctedMulti5x5SuperClustersWithPreshower", SCCollectionEE);
+	edm::Handle<reco::SuperClusterCollection> SCCollectionEB;
+iEvent.getByLabel("correctedHybridSuperClusters", SCCollectionEB);
+	edm::Handle <reco::MuonCollection> recoMuons;			
+iEvent.getByLabel("muons", recoMuons);
 	edm::Handle <reco::PhotonCollection> Photons;					iEvent.getByLabel("photons", Photons);
 	edm::Handle <edm::TriggerResults> HLTR;						iEvent.getByLabel(edm::InputTag("TriggerResults", "", "HLT"), HLTR);
 	edm::Handle <trigger::TriggerEvent> trgEvent;					iEvent.getByLabel(edm::InputTag("hltTriggerSummaryAOD", "", "HLT"), trgEvent);
@@ -1238,6 +1245,34 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 
 	}
 	if (verbose) std::cout << "total pfele size: " << pfeleVector->size() << std::endl;
+
+//########################### SuperClusters ###########################
+	if (verbose) std::cout << "--- superclusters: " << std::endl;
+
+	SCVector->clear();
+	//Barrel Superclusters (Corrected)
+	for( unsigned i=0; i<SCCollectionEB->size(); i++ ) {
+		MySC * SC = new MySC;
+		SC->energy = (*SCCollectionEB)[i].rawEnergy();
+		SC->Epreshower = (*SCCollectionEB)[i].preshowerEnergy();
+		SC->point.SetXYZ((*SCCollectionEB)[i].position().x(),(*SCCollectionEB)[i].position().y(),(*SCCollectionEB)[i].position().z());
+		SC->phiWidth = (*SCCollectionEB)[i].phiWidth();
+		SC->etaWidth = (*SCCollectionEB)[i].etaWidth();
+
+		SCVector->push_back(SC);
+	}
+
+	//Endcap Superclusters (Corrected 5x5)
+	for( unsigned i=0; i<SCCollectionEE->size(); i++ ) {
+		MySC * SC = new MySC;
+		SC->energy = (*SCCollectionEE)[i].rawEnergy();
+		SC->Epreshower = (*SCCollectionEE)[i].preshowerEnergy();
+		SC->point.SetXYZ((*SCCollectionEE)[i].position().x(),(*SCCollectionEE)[i].position().y(),(*SCCollectionEE)[i].position().z());
+		SC->phiWidth = (*SCCollectionEE)[i].phiWidth();
+		SC->etaWidth = (*SCCollectionEE)[i].etaWidth();
+
+		SCVector->push_back(SC);
+	}  
 
 //########################### Muons ###########################
 	if (verbose) std::cout << "--- muons: " << recoMuons->size() << std::endl;

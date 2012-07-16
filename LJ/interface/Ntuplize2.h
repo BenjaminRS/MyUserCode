@@ -21,6 +21,8 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
+#include <DataFormats/EgammaReco/interface/SuperCluster.h>
+
 // #include "SimDataFormats/Track/interface/SimTrack.h"
 // #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -112,6 +114,7 @@ public:
 	std::vector<MyPFElectron*> * pfeleVector;
 	std::vector<MyCaloJet*> * ak5calojetVector;
 	std::vector<MyCaloJet*> * ak7calojetVector;
+	std::vector<MySC*> * SCVector;
 	std::vector<MyMuon*> * muonVector;
 	std::vector<MyPhoton*> * photonVector;
 	std::vector<MyPU*> * puVector;

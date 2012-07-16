@@ -175,6 +175,15 @@ class MyPhoton {
   unsigned hasPixSeed;
 };
 
+class MySC {
+ public :
+  float energy;
+  TVector3 point;
+  float Epreshower;
+  float phiWidth;
+  float etaWidth;
+};
+
 class MyPU {
  public : 
   int bunchCrossing;
