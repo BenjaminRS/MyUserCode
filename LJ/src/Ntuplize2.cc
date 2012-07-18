@@ -847,6 +847,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 	evtdata.run = iEvent.id().run();
 	evtdata.event = iEvent.id().event();
 	evtdata.lumi = iEvent.id().luminosityBlock();
+	evtdata.goodVertex = goodPV;
 
 //########################### B-tagging ###########################
 	const reco::JetTagCollection & bTags_secvtx = *(bTag_secvtx_Handle.product());
@@ -1313,7 +1314,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		}
 		muon->numMatchedStations = (*recoMuons)[i].numberOfMatchedStations();
 		if ((*recoMuons)[i].innerTrack().isNonnull()){
-			if (goodVertices.at(0)){
+			if (goodVertices.size()>0){
 				muon->trkIPxy = fabs((*recoMuons)[i].innerTrack()->dxy(goodVertices.at(0)->position()));
 				muon->trkIPz = fabs((*recoMuons)[i].innerTrack()->dz(goodVertices.at(0)->position()));
 			}
@@ -1370,7 +1371,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		ele->E = (*gsfElectrons)[i].ecalEnergy();
 		ele->p_in = (*gsfElectrons)[i].ecalEnergy()/(*gsfElectrons)[i].eSuperClusterOverP();
 //		ele->p_in = (*gsfElectrons)[i].trackMomentumAtVtx().p();
-		if (goodVertices.at(0)){
+		if (goodVertices.size()>0){
 			ele->trkDxy = (*gsfElectrons)[i].gsfTrack()->dxy(goodVertices.at(0)->position());
 			ele->trkDz = (*gsfElectrons)[i].gsfTrack()->dz(goodVertices.at(0)->position());
 		}

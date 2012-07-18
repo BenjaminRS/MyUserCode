@@ -156,6 +156,7 @@ class MyEvent {
   unsigned run;
   unsigned event;
   unsigned lumi;
+  bool goodVertex;
 };
 
 class MyMuon {
