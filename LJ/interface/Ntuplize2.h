@@ -105,7 +105,7 @@ public:
 	std::vector<MyHLTObj*> * hltobjVector;
 	std::vector<MyGenParticle*> * genpVector;
 	std::vector<MyGenParticle*> * genelectronVector;
-	std::vector<MyGenParticle*> genSigMetVector;
+	std::vector<MyGenParticle*> * genSigMetVector;
 	std::vector<MyGenParticle*> * genmuonVector;
 	std::vector<MyRecoElectron*> * recoelectronVector;
 //	std::vector<MyCaloJet*> * calogenjetVector;

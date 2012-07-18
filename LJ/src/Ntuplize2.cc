@@ -174,6 +174,7 @@ void Ntuplize2::beginJob() {
 	photonVector = new std::vector<MyPhoton*>();
 	hltobjVector = new std::vector<MyHLTObj*>();
 	puVector = new std::vector<MyPU*>();
+	genSigMetVector = new std::vector<MyGenParticle*>();
 
 	outf = new TFile(tupfile.c_str(), "RECREATE");
 	hevt = new TH1F("hevt", "hev", 3, 0, 2);
@@ -203,7 +204,7 @@ void Ntuplize2::beginJob() {
 
 void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) {
 	++eventNr;
-	if (verbose) std::cout << "EVENT["<<eventNr<<"]" << std::endl;
+	if (verbose) std::cout << "EVENT count = " << eventNr << std::endl;
 	if (verbose) std::cerr << "Inside analyze ..." << std::endl;
 	using namespace edm;
 	edm::Handle <reco::TrackCollection> hGeneralTracks;				iEvent.getByLabel("generalTracks", hGeneralTracks);
@@ -220,26 +221,24 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 	edm::Handle <reco::JetTagCollection> bTag_jetprob_Handle;			iEvent.getByLabel("jetBProbabilityBJetTags", bTag_jetprob_Handle);
 	edm::Handle <reco::PFMETCollection> pfMetCollection;				iEvent.getByLabel("pfMet", pfMetCollection);
 	edm::Handle <reco::CaloMETCollection> caloMetCollection;			iEvent.getByLabel("corMetGlobalMuons", caloMetCollection);
-	edm::Handle<reco::SuperClusterCollection> SCCollectionEE;
-iEvent.getByLabel("correctedMulti5x5SuperClustersWithPreshower", SCCollectionEE);
-	edm::Handle<reco::SuperClusterCollection> SCCollectionEB;
-iEvent.getByLabel("correctedHybridSuperClusters", SCCollectionEB);
-	edm::Handle <reco::MuonCollection> recoMuons;			
-iEvent.getByLabel("muons", recoMuons);
+	edm::Handle <reco::SuperClusterCollection> SCCollectionEE;			iEvent.getByLabel("correctedMulti5x5SuperClustersWithPreshower", SCCollectionEE);
+	edm::Handle <reco::SuperClusterCollection> SCCollectionEB;			iEvent.getByLabel("correctedHybridSuperClusters", SCCollectionEB);
+	edm::Handle <reco::MuonCollection> recoMuons;					iEvent.getByLabel("muons", recoMuons);
 	edm::Handle <reco::PhotonCollection> Photons;					iEvent.getByLabel("photons", Photons);
 	edm::Handle <edm::TriggerResults> HLTR;						iEvent.getByLabel(edm::InputTag("TriggerResults", "", "HLT"), HLTR);
 	edm::Handle <trigger::TriggerEvent> trgEvent;					iEvent.getByLabel(edm::InputTag("hltTriggerSummaryAOD", "", "HLT"), trgEvent);
+//	edm::Handle <reco::BeamSpot> beamSpot;						iEvent.getByLabel ("offlineBeamSpot",beamSpot);
+	edm::Handle <reco::VertexCollection> primaryVertex;					iEvent.getByLabel("offlinePrimaryVertices",primaryVertex);
 	std::vector <trigger::TriggerObject> trigObjs;		// is this used?
 
 	if (!do_data) {
 		// PU
 		if (verbose) std::cerr << "gonna do PU .. " << std::endl;
 		puVector->clear();
-		Handle < std::vector<PileupSummaryInfo> > PupInfo;
-		iEvent.getByLabel("addPileupInfo", PupInfo);
+		edm::Handle < std::vector<PileupSummaryInfo> > PupInfo;			iEvent.getByLabel("addPileupInfo", PupInfo);
 		std::vector<PileupSummaryInfo>::const_iterator PVI;
 		for (PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-			MyPU * pu = new MyPU();
+			MyPU* pu = new MyPU();
 			pu->bunchCrossing = PVI->getBunchCrossing();
 			pu->nInteractions = PVI->getPU_NumInteractions();
 			puVector->push_back(pu);
@@ -326,6 +325,23 @@ iEvent.getByLabel("muons", recoMuons);
 	// end HLT
 
 
+//########################### Primary Vertex ###########################
+	bool goodPV = false;
+	std::vector<const reco::Vertex*> goodVertices;
+	if (verbose) std::cerr << "Number of Primary Vertices = " << primaryVertex->size() << std::endl;
+	for (size_t vIndex=0; vIndex<primaryVertex->size(); ++vIndex){
+		const reco::Vertex* vtx=&(primaryVertex->at(vIndex));
+		if (fabs(vtx->z()<24.0) &&	//z<24cm
+			(fabs(vtx->position().rho()) < 2.0) &&	//radially<2cm
+			(vtx->ndof()>4.0)){	//ndof>4
+			goodPV=true;
+			goodVertices.push_back(vtx);
+		}
+	}
+	if (verbose) std::cerr << "Num Good Primary Vertices = " << goodVertices.size() << std::endl;
+
+
+
 //#################################################################
 //########################## Start of MC ##########################
 
@@ -356,7 +372,7 @@ iEvent.getByLabel("muons", recoMuons);
 					<< "\tphi: " << elevec[j].first.phi()
 					<< "\tlabel: " << elevec[j].second
 					<< std::endl;
-			MyGenParticle * g = new MyGenParticle();
+			MyGenParticle* g = new MyGenParticle();
 			TLorentzVector tvec(0, 0, 0, 0);
 			tvec.SetPtEtaPhiE(genpvec[j].first.pt(), genpvec[j].first.eta(),genpvec[j].first.phi(), genpvec[j].first.energy());
 			g->pdg = genpvec[j].first.pdgId();
@@ -402,7 +418,7 @@ iEvent.getByLabel("muons", recoMuons);
 					<< "\tphi: " << elevec[j].first.phi()
 					<< "\tlabel: " << elevec[j].second
 					<< std::endl;
-			MyGenParticle * g = new MyGenParticle();
+			MyGenParticle* g = new MyGenParticle();
 			TLorentzVector tvec(0, 0, 0, 0);
 			tvec.SetPtEtaPhiE(genpvec[j].first.pt(), genpvec[j].first.eta(),genpvec[j].first.phi(), genpvec[j].first.energy());
 			g->pdg = genpvec[j].first.pdgId();
@@ -448,7 +464,7 @@ iEvent.getByLabel("muons", recoMuons);
 					<< "\tphi: " << elevec[j].first.phi()
 					<< "\tlabel: " << elevec[j].second
 					<< std::endl;
-			MyGenParticle * g = new MyGenParticle();
+			MyGenParticle* g = new MyGenParticle();
 			TLorentzVector tvec(0, 0, 0, 0);
 			tvec.SetPtEtaPhiE(genpvec[j].first.pt(), genpvec[j].first.eta(),genpvec[j].first.phi(), genpvec[j].first.energy());
 			g->pdg = genpvec[j].first.pdgId();
@@ -493,7 +509,7 @@ iEvent.getByLabel("muons", recoMuons);
 					<< "\tphi: " << elevec[j].first.phi()
 					<< "\tlabel: " << elevec[j].second
 					<< std::endl;
-			MyGenParticle * g = new MyGenParticle();
+			MyGenParticle* g = new MyGenParticle();
 			TLorentzVector tvec(0, 0, 0, 0);
 			tvec.SetPtEtaPhiE(genpvec[j].first.pt(), genpvec[j].first.eta(),genpvec[j].first.phi(), genpvec[j].first.energy());
 			g->pdg = genpvec[j].first.pdgId();
@@ -646,7 +662,7 @@ iEvent.getByLabel("muons", recoMuons);
 		elevec.clear();
 		hd0vec.clear();
 		genpvec.clear();
-		genSigMetVector.clear();
+		genSigMetVector->clear();
 		genpVector->clear();
 		genelectronVector->clear();
 		unsigned nlabels = 0, nWlabels = 0, old_label = 999;
@@ -698,7 +714,7 @@ iEvent.getByLabel("muons", recoMuons);
 					tvec.SetPtEtaPhiE(hd0vec[h].first.pt(),hd0vec[h].first.eta(), hd0vec[h].first.phi(),hd0vec[h].first.energy());
 					ghd0->p4 = tvec;
 					ghd0->label = hd0vec[h].second;
-					genSigMetVector.push_back(ghd0);
+					genSigMetVector->push_back(ghd0);
 				}
 			}
 		}
@@ -790,9 +806,9 @@ iEvent.getByLabel("muons", recoMuons);
 //				if (verbose) std::cout << "energyFromEles: " << energyFromEles[j] << std::endl;
 				double sigMET(0);
 				TLorentzVector sigMETp4(0,0,0,0);
-				if (verbose) std::cout << "genSigMetVector.size(): " << genSigMetVector.size() << std::endl;
-				for (unsigned metIndex = 0; metIndex < genSigMetVector.size(); metIndex++) {
-					MyGenParticle* m = genSigMetVector.at(metIndex);
+				if (verbose) std::cout << "genSigMetVector.size(): " << genSigMetVector->size() << std::endl;
+				for (unsigned metIndex = 0; metIndex < genSigMetVector->size(); metIndex++) {
+					MyGenParticle* m = genSigMetVector->at(metIndex);
 					if (m->label == j){
 						sigMET+=m->p4.Pt();
 						sigMETp4 += m->p4;
@@ -840,7 +856,7 @@ iEvent.getByLabel("muons", recoMuons);
 //########################### Photons ###########################
 	photonVector->clear();
 	for (unsigned i = 0; i < Photons->size(); i++) {
-		MyPhoton * photon = new MyPhoton;
+		MyPhoton* photon = new MyPhoton;
 		photon->p4 = TLorentzVector(0, 0, 0, 0);
 		photon->p4.SetPtEtaPhiE((*Photons)[i].pt(), (*Photons)[i].eta(),(*Photons)[i].phi(), (*Photons)[i].energy());
 		photon->Iecal = (*Photons)[i].ecalRecHitSumEtConeDR04();
@@ -1088,7 +1104,7 @@ iEvent.getByLabel("muons", recoMuons);
 				<< "\teleFrac: " << (*pfJets)[i].electronEnergyFraction()
 				<< std::endl;
 
-		MyPFJet * pfjet = new MyPFJet;
+		MyPFJet* pfjet = new MyPFJet;
 		pfjet->p4 = TLorentzVector(0, 0, 0, 0);
 		pfjet->p4.SetPtEtaPhiE((*pfJets)[i].pt(), (*pfJets)[i].eta(),(*pfJets)[i].phi(), (*pfJets)[i].energy());
 		pfjet->area = (*pfJets)[i].jetArea();
@@ -1168,7 +1184,7 @@ iEvent.getByLabel("muons", recoMuons);
 				}
 				else if (verbose) std::cerr << "\tmatched to GSF ele! " << std::endl;
 
-				MyPFElectron * pfele = new MyPFElectron;
+				MyPFElectron* pfele = new MyPFElectron;
 				pfele->gsfIndex = gsfIndex;
 				pfele->ecalDriven = gele.ecalDriven();
 				pfele->ecalDrivenSeed = gele.ecalDrivenSeed();
@@ -1242,17 +1258,16 @@ iEvent.getByLabel("muons", recoMuons);
 				<< std::endl;
 		if (verbose) std::cout << "\tHCAL: " << pfjet->hcalConstitEnergy << std::endl;
 		if (verbose) std::cout << std::endl;
-
 	}
 	if (verbose) std::cout << "total pfele size: " << pfeleVector->size() << std::endl;
 
 //########################### SuperClusters ###########################
-	if (verbose) std::cout << "--- superclusters: " << std::endl;
+	if (verbose) std::cout << "--- superclusters: " << SCCollectionEB->size()+SCCollectionEE->size() << std::endl;
 
 	SCVector->clear();
 	//Barrel Superclusters (Corrected)
 	for( unsigned i=0; i<SCCollectionEB->size(); i++ ) {
-		MySC * SC = new MySC;
+		MySC* SC = new MySC;
 		SC->energy = (*SCCollectionEB)[i].rawEnergy();
 		SC->Epreshower = (*SCCollectionEB)[i].preshowerEnergy();
 		SC->point.SetXYZ((*SCCollectionEB)[i].position().x(),(*SCCollectionEB)[i].position().y(),(*SCCollectionEB)[i].position().z());
@@ -1264,7 +1279,7 @@ iEvent.getByLabel("muons", recoMuons);
 
 	//Endcap Superclusters (Corrected 5x5)
 	for( unsigned i=0; i<SCCollectionEE->size(); i++ ) {
-		MySC * SC = new MySC;
+		MySC* SC = new MySC;
 		SC->energy = (*SCCollectionEE)[i].rawEnergy();
 		SC->Epreshower = (*SCCollectionEE)[i].preshowerEnergy();
 		SC->point.SetXYZ((*SCCollectionEE)[i].position().x(),(*SCCollectionEE)[i].position().y(),(*SCCollectionEE)[i].position().z());
@@ -1283,35 +1298,88 @@ iEvent.getByLabel("muons", recoMuons);
 		muon->isGlobal = (*recoMuons)[i].isGlobalMuon();
 		muon->isTracker = (*recoMuons)[i].isTrackerMuon();
 		muon->isSA = (*recoMuons)[i].isStandAloneMuon();
-		muon->Itrk = (*recoMuons)[i].isolationR03().sumPt;
+		muon->Itrk = (*recoMuons)[i].isolationR03().sumPt;	//sum of pt tracks
 		muon->trkRelChi2 = (*recoMuons)[i].combinedQuality().trkRelChi2;
 		muon->staRelChi2 = (*recoMuons)[i].combinedQuality().staRelChi2;
+
+		if (verbose) std::cout << "\tlooking for muon ID variables ..." << std::endl;	// can probably use automated funcs here if you trust them
+		if ((*recoMuons)[i].globalTrack().isNonnull()){
+			muon->globalTrkNormChi2 = (*recoMuons)[i].globalTrack()->normalizedChi2();
+			muon->globalTrkMuHits = (*recoMuons)[i].globalTrack()->hitPattern().numberOfValidMuonHits();
+		}
+		else{
+			muon->globalTrkNormChi2 = -1;
+			muon->globalTrkMuHits = -1;
+		}
+		muon->numMatchedStations = (*recoMuons)[i].numberOfMatchedStations();
+		if ((*recoMuons)[i].innerTrack().isNonnull()){
+			if (goodVertices.at(0)){
+				muon->trkIPxy = fabs((*recoMuons)[i].innerTrack()->dxy(goodVertices.at(0)->position()));
+				muon->trkIPz = fabs((*recoMuons)[i].innerTrack()->dz(goodVertices.at(0)->position()));
+			}
+			else{
+				muon->trkIPxy = fabs((*recoMuons)[i].innerTrack()->dxy());
+				muon->trkIPz = fabs((*recoMuons)[i].innerTrack()->dz());
+			}
+			muon->numPixelHits = (*recoMuons)[i].innerTrack()->hitPattern().numberOfValidPixelHits();
+			muon->numTrkHits = (*recoMuons)[i].innerTrack()->hitPattern().numberOfValidTrackerHits(); //Older selection = same as VHbb; still acceptable
+			muon->innerTrkNormChi2 = (*recoMuons)[i].innerTrack()->normalizedChi2();
+			muon->numPixelLayers = (*recoMuons)[i].innerTrack()->hitPattern().pixelLayersWithMeasurement();
+		}
+		else{
+			muon->trkIPxy = -1.0;
+			muon->trkIPz = -1.0;
+			muon->numPixelHits = -1;
+			muon->numTrkHits = -1;
+			muon->innerTrkNormChi2 = -1;
+			muon->numPixelLayers = -1;
+		}
+
+		if (verbose) std::cout << "\tlooking for muon isolation variables ..." << std::endl;
+		muon->combIso = ((*recoMuons)[i].isolationR03().sumPt + (*recoMuons)[i].isolationR03().emEt + (*recoMuons)[i].isolationR03().hadEt)/(*recoMuons)[i].pt();
+		muon->trkIso = (*recoMuons)[i].isolationR03().sumPt/(*recoMuons)[i].pt();
+
+		if (verbose) std::cout << "\tsaving muon" << std::endl;
 		muonVector->push_back(muon);
 	}
 
 //########################### Electrons ###########################
-	if (verbose) std::cout << "--- electrons: " << std::endl;
+	if (verbose) std::cout << "--- electrons: " << gsfElectrons->size() << std::endl;
 	recoelectronVector->clear();
 	for (unsigned i = 0; i < gsfElectrons->size(); i++) {
-		if (verbose) std::cout << "pt: " << (*gsfElectrons)[i].pt();
-		if (verbose) std::cout << "\teta: " << (*gsfElectrons)[i].eta();
+		if (verbose) std::cout << "pt: " << (*gsfElectrons)[i].pt() << "\teta: " << (*gsfElectrons)[i].eta();
 //		if (verbose) std::cout << "\tfflags: " << std::hex << (*gsfElectrons)[i].fiducialFlags() << std::dec;
 		if (verbose) std::cout << std::endl;
-		MyRecoElectron * ele = new MyRecoElectron;
+		MyRecoElectron* ele = new MyRecoElectron;
 		ele->p4 = TLorentzVector(0, 0, 0, 0);
 		ele->p4.SetPtEtaPhiE((*gsfElectrons)[i].pt(), (*gsfElectrons)[i].eta(),	(*gsfElectrons)[i].phi(), (*gsfElectrons)[i].energy());
+
+		if (verbose) std::cout << "\tfinding electron ID variables\n";	// can probably use automated funcs here if you trust them
 		ele->sigieie = (*gsfElectrons)[i].sigmaIetaIeta();
 		ele->deta = (*gsfElectrons)[i].deltaEtaSuperClusterTrackAtVtx();
 		ele->dphi = (*gsfElectrons)[i].deltaPhiSuperClusterTrackAtVtx();
 		ele->HoverE = (*gsfElectrons)[i].hadronicOverEm();
 		ele->eSCoverP = (*gsfElectrons)[i].eSuperClusterOverP();
 		ele->Itrk = (*gsfElectrons)[i].dr03TkSumPt();
-		ele->Iecal = (*gsfElectrons)[i].dr04EcalRecHitSumEt();
-		ele->Ihcal = (*gsfElectrons)[i].dr04HcalTowerSumEt();
+		ele->Iecal = (*gsfElectrons)[i].dr03EcalRecHitSumEt();	// switched from dr04 to dr03
+		ele->Ihcal = (*gsfElectrons)[i].dr03HcalTowerSumEt();
 //		ele->convDist = (*gsfElectrons)[i].convDist();
 //		ele->convDcot = (*gsfElectrons)[i].convDcot();
 		ele->misHits = (*gsfElectrons)[i].gsfTrack()->trackerExpectedHitsInner().numberOfHits();
 		ele->fBrem = (*gsfElectrons)[i].fbrem();
+		ele->E = (*gsfElectrons)[i].ecalEnergy();
+		ele->p_in = (*gsfElectrons)[i].ecalEnergy()/(*gsfElectrons)[i].eSuperClusterOverP();
+//		ele->p_in = (*gsfElectrons)[i].trackMomentumAtVtx().p();
+		if (goodVertices.at(0)){
+			ele->trkDxy = (*gsfElectrons)[i].gsfTrack()->dxy(goodVertices.at(0)->position());
+			ele->trkDz = (*gsfElectrons)[i].gsfTrack()->dz(goodVertices.at(0)->position());
+		}
+		else{
+			ele->trkDxy = (*gsfElectrons)[i].gsfTrack()->dxy();
+			ele->trkDz = (*gsfElectrons)[i].gsfTrack()->dz();
+//			ele->trkDxy = -1.0;
+//			ele->trkDz = -1.0;
+		}
 		ele->isEB = (*gsfElectrons)[i].isEB();
 		ele->isEE = (*gsfElectrons)[i].isEE();
 		((*gsfElectrons)[i].ecalDrivenSeed() != 0 ) ? ele->ecalDriven = 1 : ele->ecalDriven = 0;
@@ -1339,12 +1407,82 @@ iEvent.getByLabel("muons", recoMuons);
 		 outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(*iM,hConversions));
 
 		 */
+		if (verbose) std::cout << "\tSaving electron\n";
 		recoelectronVector->push_back(ele);
 	}
 
+	if (verbose) std::cout << "Filling the tree ...\n";
 	tree->Fill();
 	if (verbose) std::cout << "================================================"	<< std::endl;
-	if (verbose) std::cout << std::endl;
+	if (verbose) std::cout << "Freeing memory ...\n";
+
+	if (verbose) std::cout << "Freeing memory puVector...\n";
+	for (unsigned x = 0; x < puVector->size(); x++) {
+		delete puVector->at(x);
+		puVector->at(x) = NULL;
+	}
+	if (verbose) std::cout << "Freeing memory genmuonVector...\n";
+	for (unsigned x = 0; x < genmuonVector->size(); x++) {
+		delete genmuonVector->at(x);
+		genmuonVector->at(x) = NULL;
+	}
+	if (verbose) std::cout << "Freeing memory genelectronVector...\n";
+	for (unsigned x = 0; x < genelectronVector->size(); x++) {
+		delete genelectronVector->at(x);
+		genelectronVector->at(x) = NULL;
+	}
+	if (verbose) std::cout << "Freeing memory genSigMetVector..." << std::endl;
+	for (unsigned x = 0; x < genSigMetVector->size(); x++) {
+		delete genSigMetVector->at(x);
+		genSigMetVector->at(x) = NULL;
+	}
+	if (verbose) std::cout << "Freeing memory genpVector...\n";
+	for (unsigned x = 0; x < genpVector->size(); x++) {
+		delete genpVector->at(x);
+		genpVector->at(x) = NULL;
+	}
+	if (verbose) std::cout << "Freeing memory genjetVector...\n";
+	for (unsigned x = 0; x < genjetVector->size(); x++) {
+		delete genjetVector->at(x);
+		genjetVector->at(x) = NULL;
+	}
+	if (verbose) std::cout << "Freeing memory photonVector...\n";
+	for (unsigned x = 0; x < photonVector->size(); x++) {
+		delete photonVector->at(x);
+		photonVector->at(x) = NULL;
+	}
+	if (verbose) std::cout << "Freeing memory ak5calojetVector...\n";
+	for (unsigned x = 0; x < ak5calojetVector->size(); x++) {
+		delete ak5calojetVector->at(x);
+		ak5calojetVector->at(x) = NULL;
+	}
+	if (verbose) std::cout << "Freeing memory ak7calojetVector...\n";
+	for (unsigned x = 0; x < ak7calojetVector->size(); x++) {
+		delete ak7calojetVector->at(x);
+		ak7calojetVector->at(x) = NULL;
+	}
+	if (verbose) std::cout << "Freeing memory pfjetVector...\n";
+	for (unsigned x = 0; x < pfjetVector->size(); x++) {
+		delete pfjetVector->at(x);
+		pfjetVector->at(x) = NULL;
+	}
+	if (verbose) std::cout << "Freeing memory SCVector...\n";
+	for (unsigned x = 0; x < SCVector->size(); x++) {
+		delete SCVector->at(x);
+		SCVector->at(x) = NULL;
+	}
+	if (verbose) std::cout << "Freeing memory muonVector...\n";
+	for (unsigned x = 0; x < muonVector->size(); x++) {
+		delete muonVector->at(x);
+		muonVector->at(x) = NULL;
+	}
+	if (verbose) std::cout << "Freeing memory recoelectronVector...\n";
+	for (unsigned x = 0; x < recoelectronVector->size(); x++) {
+		delete recoelectronVector->at(x);
+		recoelectronVector->at(x) = NULL;
+	}
+
+	if (verbose) std::cout << "================================================"	<< std::endl;
 	if (verbose) std::cout << std::endl;
 }
 
@@ -1357,6 +1495,27 @@ void Ntuplize2::endJob() {
 	tree->Print();
 	outf->Write();
 	outf->Close();
+
+//	delete genpVector; // crashes if try to delete -> so just leave them
+//	delete genmuonVector;
+//	delete genelectronVector;
+//	delete recoelectronVector;
+//	delete pfjetVector;
+//	delete pfeleVector;
+//	delete ak5calojetVector;
+//	delete ak7calojetVector;
+//	delete genjetVector;
+//	delete muonVector;
+//	delete SCVector;
+//	delete photonVector;
+//	delete hltobjVector;
+//	delete puVector;
+//	delete genSigMetVector;
+//	delete outf;
+//	delete hevt;
+//	delete tree;
+//	delete nt;
+
 }
 
 DEFINE_FWK_MODULE(Ntuplize2);

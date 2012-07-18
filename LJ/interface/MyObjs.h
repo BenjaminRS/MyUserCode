@@ -27,6 +27,10 @@ class MyRecoElectron {
   double convDcot;
   double misHits;
   double fBrem;
+  double E;
+  double p_in;
+  double trkDxy;
+  double trkDz;
   double convR;
   double mva_epi; // for PF
   unsigned isEB, isEE;
@@ -162,7 +166,17 @@ class MyMuon {
   unsigned isGlobal;
   unsigned isTracker;
   unsigned isSA;
-
+  double globalTrkNormChi2;
+  unsigned globalTrkMuHits;
+  unsigned numMatchedStations;
+  double trkIPxy;
+  double trkIPz;
+  unsigned numPixelHits;
+  unsigned numTrkHits;
+  double innerTrkNormChi2;
+  unsigned numPixelLayers;
+  double combIso;
+  double trkIso;
 };
 
 class MyPhoton {
@@ -189,3 +203,11 @@ class MyPU {
   int bunchCrossing;
   int nInteractions;
 };
+
+//class MyPrimaryVertices {
+// public :
+//	TVector3 point;
+//	double ndof;
+//	unsigned ntrks;
+//	double trkWeights;
+//};
