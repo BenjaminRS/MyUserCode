@@ -1,55 +1,16 @@
-#include <vector>
-#include "MyObjs.h"
-class GenElectron;
-class RecoElectron;
-class RecoJet;
-#ifdef __MAKECINT__
-#pragma link C++ class vector<MyGenParticle*>;
-#pragma link C++ class vector<MyGenParticle*>+;
-#pragma link C++ class vector<MyGenParticle*>::iterator;
-#pragma link C++ function operator==(const vector<MyGenParticle*>::iterator&,const vector<MyGenParticle*>::iterator&);
-#pragma link C++ class vector<MyPFElectron*>;
-#pragma link C++ class vector<MyPFElectron*>+;
-#pragma link C++ class vector<MyPFElectron*>::iterator;
-#pragma link C++ function operator==(const vector<MyPFElectron*>::iterator&,const vector<MyPFElectron*>::iterator&);
-#pragma link C++ class vector<MyRecoElectron*>;
-#pragma link C++ class vector<MyRecoElectron*>+;
-#pragma link C++ class vector<MyRecoElectron*>::iterator;
-#pragma link C++ function operator==(const vector<MyRecoElectron*>::iterator&,const vector<MyRecoElectron*>::iterator&);
-#pragma link C++ class vector<MyPFJet*>;
-#pragma link C++ class vector<MyPFJet*>+;
-#pragma link C++ class vector<MyPFJet*>::iterator;
-#pragma link C++ function operator==(const vector<MyPFJet*>::iterator&,const vector<MyPFJet*>::iterator&);
-#pragma link C++ class vector<MyCaloJet*>;
-#pragma link C++ class vector<MyCaloJet*>+;
-#pragma link C++ class vector<MyCaloJet*>::iterator;
-#pragma link C++ function operator==(const vector<MyCaloJet*>::iterator&,const vector<MyCaloJet*>::iterator&);
-#pragma link C++ class vector<MyHLTObj*>;
-#pragma link C++ class vector<MyHLTObj*>+;
-#pragma link C++ class vector<MyHLTObj*>::iterator;
-#pragma link C++ function operator==(const vector<MyHLTObj*>::iterator&,const vector<MyHLTObj*>::iterator&);
-#pragma link C++ class vector<MyHLT*>;
-#pragma link C++ class vector<MyHLT*>+;
-#pragma link C++ class vector<MyHLT*>::iterator;
-#pragma link C++ function operator==(const vector<MyHLT*>::iterator&,const vector<MyHLT*>::iterator&);
-#pragma link C++ class vector<MyEvent*>;
-#pragma link C++ class vector<MyEvent*>+;
-#pragma link C++ class vector<MyEvent*>::iterator;
-#pragma link C++ function operator==(const vector<MyEvent*>::iterator&,const vector<MyEvent*>::iterator&);
-#pragma link C++ class vector<MyMuon*>;
-#pragma link C++ class vector<MyMuon*>+;
-#pragma link C++ class vector<MyMuon*>::iterator;
-#pragma link C++ function operator==(const vector<MyMuon*>::iterator&,const vector<MyMuon*>::iterator&);
-#pragma link C++ class vector<MyPhoton*>;
-#pragma link C++ class vector<MyPhoton*>+;
-#pragma link C++ class vector<MyPhoton*>::iterator;
-#pragma link C++ function operator==(const vector<MyPhoton*>::iterator&,const vector<MyPhoton*>::iterator&);
-#pragma link C++ class vector<MySC*>;
-#pragma link C++ class vector<MySC*>+;
-#pragma link C++ class vector<MySC*>::iterator;
-#pragma link C++ function operator==(const vector<MySC*>::iterator&,const vector<MySC*>::iterator&);
-#pragma link C++ class vector<MyPU*>;
-#pragma link C++ class vector<MyPU*>+;
-#pragma link C++ class vector<MyPU*>::iterator;
-#pragma link C++ function operator==(const vector<MyPU*>::iterator&,const vector<MyPU*>::iterator&);
-#endif
+#include "../interface/MyObjs.h"
+
+ClassImp(brs::MyGenParticle)
+ClassImp(brs::MyRecoElectron)
+ClassImp(brs::MyHLTObj)
+ClassImp(brs::MyHLT)
+ClassImp(brs::MyMET)
+ClassImp(brs::MyGsfTrack)
+ClassImp(brs::MyPFElectron)
+ClassImp(brs::MyPFJet)
+ClassImp(brs::MyCaloJet)
+ClassImp(brs::MyEvent)
+ClassImp(brs::MyMuon)
+ClassImp(brs::MyPhoton)
+ClassImp(brs::MySC)
+ClassImp(brs::MyPU)

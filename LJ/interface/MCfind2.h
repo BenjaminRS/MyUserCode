@@ -1,9 +1,9 @@
 void Ntuplize2::findSignalElectrons( const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label ) {
   for( reco::GenParticle::const_iterator it = p.begin(); it<p.end(); it++ ) {
     if( p.pdgId() == 25 ) { 		//H
-    	if (verbose) std::cerr << std::endl << "found a Higgs!, mass:" << p.mass() << std::endl << std::endl;
-      if ( it->pdgId() == 25 )  continue;
-      label = it - p.begin(); 
+    	if ( it->pdgId() == 25 )  continue;
+    	label = it - p.begin();
+    	if (verbose) std::cerr << std::endl << "found a Higgs!, mass:" << p.mass() << " label = " << label << std::endl << std::endl;
     }
     if (verbose){
     	std::cerr << "\t daughter " << it->pdgId()
@@ -28,9 +28,9 @@ void Ntuplize2::findSignalElectrons( const reco::GenParticle &p, std::vector<std
 void Ntuplize2::findSignalMET( const reco::GenParticle &p, std::vector<std::pair<reco::GenParticle, unsigned> > &vec, unsigned& label ) {
   for( reco::GenParticle::const_iterator it = p.begin(); it<p.end(); it++ ) {
     if( p.pdgId() == 25 ) {		//H
-    	if (verbose) std::cerr << std::endl << "found a Higgs!, mass:" << p.mass() << std::endl << std::endl;
-      if ( it->pdgId() == 25 )  continue;
-      label = it - p.begin();
+    	if ( it->pdgId() == 25 )  continue;
+    	label = it - p.begin();
+    	if (verbose) std::cerr << std::endl << "found a Higgs!, mass:" << p.mass() << " label = " << label << std::endl << std::endl;
     }
     if (verbose){
     	std::cerr << "\t daughter " << it->pdgId()
@@ -79,7 +79,7 @@ void Ntuplize2::findZDaughters( const reco::GenParticle &p, std::vector<std::pai
     if( p.pdgId() == 23 ) {	//Z
     	if (verbose){
     		std::cerr << std::endl;
-    		std::cerr << "found a W!, mass:" << p.mass() << std::endl;
+    		std::cerr << "found a Z!, mass:" << p.mass() << std::endl;
     		std::cerr << std::endl;
     	}
       if ( it->pdgId() == 23 )  continue;

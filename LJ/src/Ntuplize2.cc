@@ -5,6 +5,22 @@
 #include "../interface/Ntuplize2.h"
 #include "../interface/MCfind2.h"
 
+//using brs::MyGenParticle;
+//using brs::MyRecoElectron;
+//using brs::MyHLTObj;
+//using brs::MyHLT;
+//using brs::MyMET;
+//using brs::MyGsfTrack;
+//using brs::MyPFElectron;
+//using brs::MyPFJet;
+//using brs::MyCaloJet;
+//using brs::MyEvent;
+//using brs::MyMuon;
+//using brs::MyPhoton;
+//using brs::MySC;
+//using brs::MyPU;
+//using namespace brs;
+
 Ntuplize2::Ntuplize2(const edm::ParameterSet& iConfig){
 	verbose= iConfig.getUntrackedParameter<bool>("verbosity",false);
 	if (verbose) std::cerr << "Ntuplize2 created ... " << std::endl;
@@ -141,16 +157,16 @@ void Ntuplize2::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 		}
 	}
 	for (unsigned i = 0; i < triggerIndices_.size(); i++) {
-		if (verbose) std::cerr << "trigger index: " << triggerIndices_[i] << " ";
+//		if (verbose) std::cerr << "trigger index: " << triggerIndices_[i] << " ";
 		unsigned modindex = hltConfig_.moduleLabels(triggerIndices_[i]).size() - 2;
 		lastFilterLabels_.push_back(hltConfig_.moduleLabels(triggerIndices_.at(i)).at(modindex));
-		if (verbose){
-			std::cerr << "last filter : " << hltConfig_.moduleLabels(triggerIndices_[i])[modindex]	<< std::endl;
-			std::cerr << "hltConfig_.moduleLabels(triggerIndices_.at(i)) of size "<< hltConfig_.moduleLabels(triggerIndices_.at(i)).size() << " ="  << std::endl;
-			for (unsigned int modLabs=0; modLabs < hltConfig_.moduleLabels(triggerIndices_.at(i)).size(); ++modLabs ){
-				std::cerr << "\t" << hltConfig_.moduleLabels(triggerIndices_.at(i)).at(modLabs) << std::endl;
-			}
-		}
+//		if (verbose){
+//			std::cerr << "last filter : " << hltConfig_.moduleLabels(triggerIndices_[i])[modindex]	<< std::endl;
+//			std::cerr << "hltConfig_.moduleLabels(triggerIndices_.at(i)) of size "<< hltConfig_.moduleLabels(triggerIndices_.at(i)).size() << " ="  << std::endl;
+//			for (unsigned int modLabs=0; modLabs < hltConfig_.moduleLabels(triggerIndices_.at(i)).size(); ++modLabs ){
+//				std::cerr << "\t" << hltConfig_.moduleLabels(triggerIndices_.at(i)).at(modLabs) << std::endl;
+//			}
+//		}
 		allFilterLabels_.push_back(hltConfig_.moduleLabels(triggerIndices_.at(i)));
 	}
 }
@@ -158,59 +174,60 @@ void Ntuplize2::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 // ------------ method called once each job just before starting event loop  ------------
 void Ntuplize2::beginJob() {
 	if (verbose) std::cerr << "output file is " << tupfile << std::endl;
-	gSystem->Load("./MyObjs_C.so");
+//	gSystem->Load("./MyObjs_C.so");
 
-	genpVector = new std::vector<MyGenParticle*>();
-	genmuonVector = new std::vector<MyGenParticle*>();
-	genelectronVector = new std::vector<MyGenParticle*>();
-	recoelectronVector = new std::vector<MyRecoElectron*>();
-	pfjetVector = new std::vector<MyPFJet*>();
-	pfeleVector = new std::vector<MyPFElectron*>();
-	ak5calojetVector = new std::vector<MyCaloJet*>();
-	ak7calojetVector = new std::vector<MyCaloJet*>();
-	genjetVector = new std::vector<MyPFJet*>();
-	muonVector = new std::vector<MyMuon*>();
-	SCVector = new std::vector<MySC*>();
-	photonVector = new std::vector<MyPhoton*>();
-	hltobjVector = new std::vector<MyHLTObj*>();
-	puVector = new std::vector<MyPU*>();
-	genSigMetVector = new std::vector<MyGenParticle*>();
+	genpVector = new std::vector<MyGenParticle>();
+	genmuonVector = new std::vector<MyGenParticle>();
+	genelectronVector = new std::vector<MyGenParticle>();
+	recoelectronVector = new std::vector<MyRecoElectron>();
+//	pfjetVector = new std::vector<MyPFJet>();
+	pfeleVector = new std::vector<MyPFElectron>();
+	ak5calojetVector = new std::vector<MyCaloJet>();
+	ak7calojetVector = new std::vector<MyCaloJet>();
+	genjetVector = new std::vector<MyPFJet>();
+	muonVector = new std::vector<MyMuon>();
+	SCVector = new std::vector<MySC>();
+	photonVector = new std::vector<MyPhoton>();
+	hltobjVector = new std::vector<MyHLTObj>();
+	puVector = new std::vector<MyPU>();
+	genSigMetVector = new std::vector<MyGenParticle>();
 
 	outf = new TFile(tupfile.c_str(), "RECREATE");
 	hevt = new TH1F("hevt", "hev", 3, 0, 2);
 	tree = new TTree("tree", "thetree");
 	nt = new TNtuple("nt", "nt", "mva_e_pi:mva_gamma:pix");
 
-	tree->Branch("gen_particles", "vector<MyGenParticle*>", &genpVector);
-	tree->Branch("reco_electrons", "vector<MyRecoElectron*>", &recoelectronVector);
-	tree->Branch("pf_jets", "vector<MyPFJet*>", &pfjetVector);
-	tree->Branch("pf_electrons", "vector<MyPFElectron*>", &pfeleVector);
-	tree->Branch("ak5calo_jets", "vector<MyCaloJet*>", &ak5calojetVector);
-	tree->Branch("ak7calo_jets", "vector<MyCaloJet*>", &ak7calojetVector);
-	tree->Branch("mygen_jets", "vector<MyPFJet*>", &genjetVector);
-	tree->Branch("reco_muons", "vector<MyMuon*>", &muonVector);
-	tree->Branch("hlt_objs", "vector<MyHLTObj*>", &hltobjVector);
-	tree->Branch("gen_electrons", "vector<MyGenParticle*>", &genelectronVector);
-	tree->Branch("gen_muons", "vector<MyGenParticle*>", &genmuonVector);
-	tree->Branch("superclusters", "vector<MySC*>", &SCVector);
-	tree->Branch("hlt", &hlt);
-	tree->Branch("met", &met);
-	tree->Branch("event_data", &evtdata);
-	tree->Branch("photons", &photonVector);
-	if (!do_data) tree->Branch("pileup", &puVector);
+	tree->Branch("gen_particles", "vector<brs::MyGenParticle>", &genpVector, 64000, 0); 			//Buff size 64 kB as computers are pretty good these days
+	tree->Branch("reco_electrons", "vector<brs::MyRecoElectron>", &recoelectronVector, 64000, 0);	//Split level 0: ie one branch each
+//	tree->Branch("pf_jets", "vector<brs::MyPFJet>", &pfjetVector, 64000, 0);
+	tree->Branch("pf_electrons", "vector<brs::MyPFElectron>", &pfeleVector, 64000, 0);
+	tree->Branch("ak5calo_jets", "vector<brs::MyCaloJet>", &ak5calojetVector, 64000, 0);
+	tree->Branch("ak7calo_jets", "vector<brs::MyCaloJet>", &ak7calojetVector, 64000, 0);
+	tree->Branch("mygen_jets", "vector<brs::MyPFJet>", &genjetVector, 64000, 0);
+	tree->Branch("reco_muons", "vector<brs::MyMuon>", &muonVector, 64000, 0);
+	tree->Branch("hlt_objs", "vector<brs::MyHLTObj>", &hltobjVector, 64000, 0);
+	tree->Branch("gen_electrons", "vector<brs::MyGenParticle>", &genelectronVector, 64000, 0);
+	tree->Branch("gen_muons", "vector<brs::MyGenParticle>", &genmuonVector, 64000, 0);
+	tree->Branch("superclusters", "vector<brs::MySC>", &SCVector, 64000, 0);
+	tree->Branch("hlt", &hlt, 64000, 0);
+	tree->Branch("met", &met, 64000, 0);
+	tree->Branch("event_data", &evtdata, 64000, 0);
+	tree->Branch("photons", &photonVector, 64000, 0);
+	if (!do_data) tree->Branch("pileup", &puVector, 64000, 0);
 	if (verbose) tree->Print();
 }
 
 
 void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) {
 	++eventNr;
+	if (verbose) std::cout << "================================================"	<< std::endl;
 	if (verbose) std::cout << "EVENT count = " << eventNr << std::endl;
 	if (verbose) std::cerr << "Inside analyze ..." << std::endl;
 	using namespace edm;
 	edm::Handle <reco::TrackCollection> hGeneralTracks;				iEvent.getByLabel("generalTracks", hGeneralTracks);
 	edm::Handle <reco::GenParticleCollection> genp;					iEvent.getByLabel("genParticles", genp);
 	edm::Handle <reco::GsfElectronCollection> gsfElectrons;				iEvent.getByLabel("gsfElectrons", gsfElectrons);
-	edm::Handle <reco::PFJetCollection> pfJets;					iEvent.getByLabel("ak5PFJets", pfJets);
+//	edm::Handle <reco::PFJetCollection> pfJets;					iEvent.getByLabel("ak5PFJets", pfJets);
 	edm::Handle <reco::PFCandidateCollection> pfCandidates;				iEvent.getByLabel("particleFlow", pfCandidates);
 	edm::Handle <reco::CaloJetCollection> ak5caloJets;				iEvent.getByLabel("ak5CaloJets", ak5caloJets);
 	edm::Handle <reco::CaloJetCollection> ak7caloJets;				iEvent.getByLabel("ak7CaloJets", ak7caloJets);
@@ -238,9 +255,9 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		edm::Handle < std::vector<PileupSummaryInfo> > PupInfo;			iEvent.getByLabel("addPileupInfo", PupInfo);
 		std::vector<PileupSummaryInfo>::const_iterator PVI;
 		for (PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-			MyPU* pu = new MyPU();
-			pu->bunchCrossing = PVI->getBunchCrossing();
-			pu->nInteractions = PVI->getPU_NumInteractions();
+			MyPU pu;
+			pu.bunchCrossing = PVI->getBunchCrossing();
+			pu.nInteractions = PVI->getPU_NumInteractions();
 			puVector->push_back(pu);
 		}
 		if (verbose) std::cerr << "done w/ PU .. " << std::endl;
@@ -265,7 +282,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		unsigned long long mask = 0x0;
 		mask |= (1ULL << i);
 		if (!(bits & mask)) continue;
-		if (verbose) std::cerr << "fired bit " << i << "\triggername: " << triggerNames_.at(i) << std::endl;
+		if (verbose) std::cerr << "fired bit " << i << "\tTriggername: " << triggerNames_.at(i) << std::endl;
 
 //##### Find the p4's of objects only matching the last filter in a path:
 //		std::cerr << "EVENT["<<iEvent.id().event()<<"] HLT MODIFICATIONS:.. For HLTPATH: " << triggerNames_.at(i) << std::endl;
@@ -295,12 +312,12 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 //		}
 
 //##### Find the p4's of objects matching all filters in a path --> as some paths will be double legs:
-		if (verbose) std::cerr << "EVENT["<<iEvent.id().event()<<"] HLT MODIFICATIONS:.. For HLTPATH: " << triggerNames_.at(i)
-				<< "\tallFilterLabels_.at(i).size(): " << allFilterLabels_.at(i).size() << std::endl;
+//		if (verbose) std::cerr << "EVENT["<<iEvent.id().event()<<"] HLT MODIFICATIONS:.. For HLTPATH: " << triggerNames_.at(i)
+//				<< "\tallFilterLabels_.at(i).size(): " << allFilterLabels_.at(i).size() << std::endl;
 		for (unsigned int filterLab=0; filterLab < allFilterLabels_.at(i).size(); ++filterLab ){
-			if (verbose) std::cerr << "\tallFilterLabels_.at(i).at(filterLab).c_str(): " << allFilterLabels_.at(i).at(filterLab).c_str() << std::endl;
+//			if (verbose) std::cerr << "\tallFilterLabels_.at(i).at(filterLab).c_str(): " << allFilterLabels_.at(i).at(filterLab).c_str() << std::endl;
 			edm::InputTag myFilter = edm::InputTag(allFilterLabels_.at(i).at(filterLab).c_str(), "", "HLT");
-			if (verbose) std::cerr << "\ttrgEvent->filterIndex(myFilter): " << trgEvent->filterIndex(myFilter) << "\ttrgEvent->sizeFilters(): " << trgEvent->sizeFilters() << std::endl;
+//			if (verbose) std::cerr << "\ttrgEvent->filterIndex(myFilter): " << trgEvent->filterIndex(myFilter) << "\ttrgEvent->sizeFilters(): " << trgEvent->sizeFilters() << std::endl;
 			if (trgEvent->filterIndex(myFilter) < trgEvent->sizeFilters()){	// not sure if this comp will now work
 				if (verbose) std::cerr << "going to fetch keys for " << myFilter << " ... " << std::endl;
 				const trigger::Keys& keys( trgEvent->filterKeys( trgEvent->filterIndex(myFilter) ) );
@@ -310,18 +327,20 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 					const trigger::TriggerObject& L3obj(TOC[hltf]);
 					TVector3 tvec(0, 0, 0);
 					tvec.SetPtEtaPhi(L3obj.pt(), L3obj.eta(), L3obj.phi());
-					MyHLTObj* o = new MyHLTObj();
-					o->p3 = TVector3(tvec);
-					o->label = i;
-					o->triggername = triggerNames_.at(i);
-					o->filtername = allFilterLabels_.at(i).at(filterLab);
+					MyHLTObj o;
+					o.p3 = TVector3(tvec);
+					o.label = i;
+					o.triggername = triggerNames_.at(i);
+					o.filtername = allFilterLabels_.at(i).at(filterLab);
 					hltobjVector->push_back(o);
-					if (verbose) std::cerr << "obj pt: " << o->p3.Pt() << std::endl;
+//					if (verbose) std::cerr << "obj pt: " << o.p3.Pt() << std::endl;
 				}
 			}
 		}
 	}
 	if (verbose) std::cout << "HLT info stored ... " << std::endl;
+	if (verbose) std::cout << "================================================"	<< std::endl;
+	if (verbose) std::cout << std::endl;
 	// end HLT
 
 
@@ -339,7 +358,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		}
 	}
 	if (verbose) std::cerr << "Num Good Primary Vertices = " << goodVertices.size() << std::endl;
-
+	if (!goodPV) return;	// Skip this event as there are no good primary vertices!
 
 
 //#################################################################
@@ -372,22 +391,21 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 					<< "\tphi: " << elevec[j].first.phi()
 					<< "\tlabel: " << elevec[j].second
 					<< std::endl;
-			MyGenParticle* g = new MyGenParticle();
+			MyGenParticle g;
 			TLorentzVector tvec(0, 0, 0, 0);
 			tvec.SetPtEtaPhiE(genpvec[j].first.pt(), genpvec[j].first.eta(),genpvec[j].first.phi(), genpvec[j].first.energy());
-			g->pdg = genpvec[j].first.pdgId();
-			g->p4 = tvec;
-			g->label = genpvec[j].second;
+			g.pdg = genpvec[j].first.pdgId();
+			g.p4 = tvec;
+			g.label = genpvec[j].second;
 			genpVector->push_back(g);
-			if (g->label != old_label) {
-				old_label = g->label;
+			if (g.label != old_label) {
+				old_label = g.label;
 				nlabels++;
 			}
 		}
 		if (verbose) std::cerr << "checking again ... " << std::endl;
 		for (unsigned y = 0; y < genpVector->size(); y++) {
-			if (verbose) std::cerr << "y: " << y << "\tpdg: " << (*genpVector)[y]->pdg
-					<< "\tpt: " << (*genpVector)[y]->p4.Pt() << std::endl;
+			if (verbose) std::cerr << "y: " << y << "\tpdg: " << genpVector->at(y).pdg << "\tpt: " << genpVector->at(y).p4.Pt() << std::endl;
 		}
 	} // do_WW
 
@@ -418,22 +436,21 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 					<< "\tphi: " << elevec[j].first.phi()
 					<< "\tlabel: " << elevec[j].second
 					<< std::endl;
-			MyGenParticle* g = new MyGenParticle();
+			MyGenParticle g;
 			TLorentzVector tvec(0, 0, 0, 0);
 			tvec.SetPtEtaPhiE(genpvec[j].first.pt(), genpvec[j].first.eta(),genpvec[j].first.phi(), genpvec[j].first.energy());
-			g->pdg = genpvec[j].first.pdgId();
-			g->p4 = tvec;
-			g->label = genpvec[j].second;
+			g.pdg = genpvec[j].first.pdgId();
+			g.p4 = tvec;
+			g.label = genpvec[j].second;
 			genpVector->push_back(g);
-			if (g->label != old_label) {
-				old_label = g->label;
+			if (g.label != old_label) {
+				old_label = g.label;
 				nlabels++;
 			}
 		}
 		if (verbose) std::cerr << "checking again ... " << std::endl;
 		for (unsigned y = 0; y < genpVector->size(); y++) {
-			if (verbose) std::cerr << "y: " << y << "\tpdg: " << (*genpVector)[y]->pdg
-					<< "\tpt: " << (*genpVector)[y]->p4.Pt() << std::endl;
+			if (verbose) std::cerr << "y: " << y << "\tpdg: " << genpVector->at(y).pdg << "\tpt: " << genpVector->at(y).p4.Pt() << std::endl;
 		}
 	} // do_ZZ
 
@@ -464,21 +481,21 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 					<< "\tphi: " << elevec[j].first.phi()
 					<< "\tlabel: " << elevec[j].second
 					<< std::endl;
-			MyGenParticle* g = new MyGenParticle();
+			MyGenParticle g;
 			TLorentzVector tvec(0, 0, 0, 0);
 			tvec.SetPtEtaPhiE(genpvec[j].first.pt(), genpvec[j].first.eta(),genpvec[j].first.phi(), genpvec[j].first.energy());
-			g->pdg = genpvec[j].first.pdgId();
-			g->p4 = tvec;
-			g->label = genpvec[j].second;
+			g.pdg = genpvec[j].first.pdgId();
+			g.p4 = tvec;
+			g.label = genpvec[j].second;
 			genpVector->push_back(g);
-			if (g->label != old_label) {
-				old_label = g->label;
+			if (g.label != old_label) {
+				old_label = g.label;
 				nlabels++;
 			}
 		}
 		if (verbose) std::cerr << "checking again ... " << std::endl;
 		for (unsigned y = 0; y < genpVector->size(); y++) {
-			if (verbose) std::cerr << "y: " << y << "\tpdg: " << (*genpVector)[y]->pdg << "\tpt: " << (*genpVector)[y]->p4.Pt() << std::endl;
+			if (verbose) std::cerr << "y: " << y << "\tpdg: " << genpVector->at(y).pdg << "\tpt: " << genpVector->at(y).p4.Pt() << std::endl;
 		}
 	} // do_Wjet
 
@@ -509,21 +526,21 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 					<< "\tphi: " << elevec[j].first.phi()
 					<< "\tlabel: " << elevec[j].second
 					<< std::endl;
-			MyGenParticle* g = new MyGenParticle();
+			MyGenParticle g;
 			TLorentzVector tvec(0, 0, 0, 0);
 			tvec.SetPtEtaPhiE(genpvec[j].first.pt(), genpvec[j].first.eta(),genpvec[j].first.phi(), genpvec[j].first.energy());
-			g->pdg = genpvec[j].first.pdgId();
-			g->p4 = tvec;
-			g->label = genpvec[j].second;
+			g.pdg = genpvec[j].first.pdgId();
+			g.p4 = tvec;
+			g.label = genpvec[j].second;
 			genpVector->push_back(g);
-			if (g->label != old_label) {
-				old_label = g->label;
+			if (g.label != old_label) {
+				old_label = g.label;
 				nlabels++;
 			}
 		}
 		if (verbose) std::cerr << "checking again ... " << std::endl;
 		for (unsigned y = 0; y < genpVector->size(); y++) {
-			if (verbose) std::cerr << "y: " << y << "\tpdg: " << (*genpVector)[y]->pdg << "\tpt: " << (*genpVector)[y]->p4.Pt() << std::endl;
+			if (verbose) std::cerr << "y: " << y << "\tpdg: " << genpVector->at(y).pdg << "\tpt: " << genpVector->at(y).p4.Pt() << std::endl;
 		}
 	} // do_Zjet
 
@@ -544,14 +561,14 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 							<< "\tphi: " << elevec[j].first.phi()
 							<< "\tlabel: " << elevec[j].second
 							<< std::endl;
-					MyGenParticle* gele = new MyGenParticle();
+					MyGenParticle gele;
 					TLorentzVector tvec(0, 0, 0, 0);
 					tvec.SetPtEtaPhiE(elevec[j].first.pt(),elevec[j].first.eta(), elevec[j].first.phi(),elevec[j].first.energy());
-					gele->p4 = tvec;
-					gele->label = elevec[j].second;
+					gele.p4 = tvec;
+					gele.label = elevec[j].second;
 					genelectronVector->push_back(gele);
-					if (gele->label != old_label) {
-						old_label = gele->label;
+					if (gele.label != old_label) {
+						old_label = gele.label;
 						nlabels++;
 					}
 				}
@@ -576,14 +593,14 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 							<< "\tphi: " << muvec[j].first.phi()
 							<< "\tlabel: " << muvec[j].second
 							<< std::endl;
-					MyGenParticle* gmu = new MyGenParticle();
+					MyGenParticle gmu;
 					TLorentzVector tvec(0, 0, 0, 0);
 					tvec.SetPtEtaPhiE(muvec[j].first.pt(),muvec[j].first.eta(), muvec[j].first.phi(),muvec[j].first.energy());
-					gmu->p4 = tvec;
-					gmu->label = muvec[j].second;
+					gmu.p4 = tvec;
+					gmu.label = muvec[j].second;
 					genelectronVector->push_back(gmu);
-					if (gmu->label != old_label) {
-						old_label = gmu->label;
+					if (gmu.label != old_label) {
+						old_label = gmu.label;
 						nlabels++;
 					}
 				}
@@ -608,14 +625,14 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 							<< "\tphi: " << elevec[j].first.phi()
 							<< "\tlabel: " << elevec[j].second
 							<< std::endl;
-					MyGenParticle* gele = new MyGenParticle();
+					MyGenParticle gele;
 					TLorentzVector tvec(0, 0, 0, 0);
 					tvec.SetPtEtaPhiE(elevec[j].first.pt(),elevec[j].first.eta(), elevec[j].first.phi(),elevec[j].first.energy());
-					gele->p4 = tvec;
-					gele->label = elevec[j].second;
+					gele.p4 = tvec;
+					gele.label = elevec[j].second;
 					genelectronVector->push_back(gele);
-					if (gele->label != old_label) {
-						old_label = gele->label;
+					if (gele.label != old_label) {
+						old_label = gele.label;
 						nlabels++;
 					}
 				}
@@ -640,14 +657,14 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 							<< "\tphi: " << muvec[j].first.phi()
 							<< "\tlabel: " << muvec[j].second
 							<< std::endl;
-					MyGenParticle* gmu = new MyGenParticle();
+					MyGenParticle gmu;;
 					TLorentzVector tvec(0, 0, 0, 0);
 					tvec.SetPtEtaPhiE(muvec[j].first.pt(),muvec[j].first.eta(), muvec[j].first.phi(),muvec[j].first.energy());
-					gmu->p4 = tvec;
-					gmu->label = muvec[j].second;
+					gmu.p4 = tvec;
+					gmu.label = muvec[j].second;
 					genmuonVector->push_back(gmu);
-					if (gmu->label != old_label) {
-						old_label = gmu->label;
+					if (gmu.label != old_label) {
+						old_label = gmu.label;
 						nlabels++;
 					}
 				}
@@ -680,7 +697,6 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 				findZDaughters(((*genp)[i]), genpvec, Zcount);
 				Zcount++;
 			}
-			// change for pythia8
 			if (abs(((*genp)[i]).pdgId()) == 25	&& ((*genp)[i]).status() == 62) { // If Higgs
 //				std::cerr << "Finding Higgs properties" << std::endl;
 				unsigned label;
@@ -697,27 +713,27 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 								<< "\tlabel: " << elevec[j].second
 								<< std::endl;
 					}
-					MyGenParticle* gele = new MyGenParticle();
+					MyGenParticle gele;
 					TLorentzVector tvec(0, 0, 0, 0);
 					tvec.SetPtEtaPhiE(elevec[j].first.pt(),elevec[j].first.eta(), elevec[j].first.phi(),elevec[j].first.energy());
-					gele->p4 = tvec;
-					gele->label = elevec[j].second;
+					gele.p4 = tvec;
+					gele.label = elevec[j].second;
 					genelectronVector->push_back(gele);
-					if (gele->label != old_label) {	//we have switched to a different EJ
-						old_label = gele->label;
+					if (gele.label != old_label) {	//we have switched to a different EJ
+						old_label = gele.label;
 						nlabels++;
 					}
 				}
 				for (unsigned h = 0; h < hd0vec.size(); h++) {	//Signal MET in EJ
-					MyGenParticle* ghd0 = new MyGenParticle();
+					MyGenParticle ghd0;
 					TLorentzVector tvec(0, 0, 0, 0);
 					tvec.SetPtEtaPhiE(hd0vec[h].first.pt(),hd0vec[h].first.eta(), hd0vec[h].first.phi(),hd0vec[h].first.energy());
-					ghd0->p4 = tvec;
-					ghd0->label = hd0vec[h].second;
+					ghd0.p4 = tvec;
+					ghd0.label = hd0vec[h].second;
 					genSigMetVector->push_back(ghd0);
 				}
-			}
-		}
+			}	// end H search
+		} // end Loop over genParticles
 
 		if (verbose) std::cerr << "how many gen particles : " << genpvec.size() << std::endl;
 		for (unsigned j = 0; j < genpvec.size(); j++) {	// Filled from findVDaughters
@@ -730,111 +746,122 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 						<< "\tlabel: " << genpvec[j].second
 						<< std::endl;
 			}
-			MyGenParticle* g = new MyGenParticle();
+			MyGenParticle g;
 			TLorentzVector tvec(0, 0, 0, 0);
 			tvec.SetPtEtaPhiE(genpvec[j].first.pt(), genpvec[j].first.eta(),genpvec[j].first.phi(), genpvec[j].first.energy());
-			g->pdg = genpvec[j].first.pdgId();
-			g->p4 = tvec;
-			g->label = genpvec[j].second;
+			g.pdg = genpvec[j].first.pdgId();
+			g.p4 = tvec;
+			g.label = genpvec[j].second;
 			genpVector->push_back(g);
-			if (g->label != old_label) {
-				old_label = g->label;
+			if (g.label != old_label) {
+				old_label = g.label;
 				nWlabels++;
 			}
 		}
 
 		if (verbose) std::cerr << "checking again ... " << std::endl;
 		for (unsigned y = 0; y < genpVector->size(); y++) {
-			if (verbose) std::cerr << "y: " << y << "\tpdg: " << (*genpVector)[y]->pdg << "\tpt: " << (*genpVector)[y]->p4.Pt() << std::endl;
+			if (verbose) std::cerr << "y: " << y << "\tpdg: " << genpVector->at(y).pdg << "\tpt: " << genpVector->at(y).p4.Pt() << std::endl;
 		}
+		if (verbose) std::cerr << "Found " << nlabels << " EJs" << std::endl;
 		if (nlabels != 2) {
-			if (verbose) std::cerr << "!!!!!!!!!! nlabels != 2 !!!!!!!!!!!\nnlabels : " << nlabels << std::endl;
-			return;
+			if (verbose) std::cerr << "!!!!!!!!!! nlabels != 2 !!!!!!!!!!!\n";
+//			return;
 		}
 
 		// find smallest cone that will fit the electrons ...
 		genjetVector->clear();
-//		calogenjetVector->clear();
 		if (elevec.size()) {	// The (genparticle,int) vector filled by findSignalElectrons
 			std::vector<double> energyFromEles;
-			unsigned jetnum = -1;
 			std::vector < math::XYZTLorentzVector > centroids;
 			std::vector<unsigned> neles;
 			if (verbose) std::cout << "looping over gele's ... " << std::endl;
-			for (unsigned j = 0; j < elevec.size(); j++) {
+			bool NoEInFirstEJ=false;
+			bool NoEInSecondEJ=false;
+			if (elevec.at(0).second != 0) NoEInFirstEJ=true; // the electron label does not start at 0, ie no ele in 1st EJ
+			for (unsigned f = 0; f < 2; f++) {
+				centroids.push_back(math::XYZTLorentzVector(0, 0, 0, 0));	// FIXME - is the problem here?
+				neles.push_back(0);
+				energyFromEles.push_back(0);
+			}
+			unsigned jetnum = -1;
+			unsigned numOfEJ(0);
+			for (unsigned j = 0; j < elevec.size(); j++) {	// Fill (genjet) EJs with info from the (genparticle) electrons
 				if (verbose) std::cout << "\tele: " << j << "\tlabel: " << elevec[j].second << std::endl;
 				if (elevec[j].second != jetnum) {
-					centroids.push_back(math::XYZTLorentzVector(0, 0, 0, 0));
-					neles.push_back(0);
-					energyFromEles.push_back(0);
-					jetnum = elevec[j].second;	//to only find the two EJs
+					jetnum = elevec[j].second;	//swtich to the next EJ
+					++numOfEJ;
 				}
-				centroids[jetnum] += math::XYZTLorentzVector(elevec[j].first.px(), elevec[j].first.py(),elevec[j].first.pz(), elevec[j].first.p()); // massless hypothesis ;
+				if (verbose) std::cout << "storing centroids["<<jetnum<<"] ... " << std::endl;
+				centroids[jetnum] += math::XYZTLorentzVector(elevec[j].first.px(), elevec[j].first.py(),elevec[j].first.pz(), elevec[j].first.p()); // massless hypothesis
 				neles[jetnum] += 1;
 				energyFromEles[jetnum]+=elevec[j].first.energy();
 			} // loop over gen eles ...
 
-			if (verbose) std::cout << "N centroids : " << centroids.size() << std::endl;
-			for (unsigned j = 0; j < centroids.size(); j++) {
-				if (verbose) std::cerr << "centroid " << j << "\tpt: " << centroids[j].Pt() << "\teta: " << centroids[j].Eta() << "\tphi: " << centroids[j].Phi() << std::endl;
-				if (verbose) std::cerr << centroids[j] << std::endl;
-				TVector3 axis;
-				axis.SetPtEtaPhi(centroids[j].Pt(), centroids[j].Eta(), centroids[j].Phi());
-				double maxdR = -1;
-				unsigned maxindex(0);
-				double maxdRminpT = -1;
-				unsigned maxindexminpT;
-				for (unsigned k = 0; k < elevec.size(); k++) {
-					if (verbose) std::cerr << "\tlooping over eles ... " << std::endl;
-					if (elevec[k].second == j) {
-						TVector3 e(elevec[k].first.px(), elevec[k].first.py(), elevec[k].first.pz());
-						double dR = axis.DrEtaPhi(e);
-						if (dR > maxdR) {
-							maxdR = dR;
-							maxindex = k;
-						}
-						if (elevec[k].first.pt() >= 2.) {
-							if (dR > maxdRminpT) {
-								maxdRminpT = dR;
-								maxindexminpT = k;
+			if (verbose) std::cout << "N centroids created: " << centroids.size() << " Number of EJ with electrons: " << numOfEJ << std::endl;
+			if (!NoEInFirstEJ && numOfEJ<2) NoEInSecondEJ=true;
+			if (verbose) std::cout << "NoEInFirstEJ: " << NoEInFirstEJ << std::endl;
+			for (unsigned cenIndex = 0; cenIndex < 2; cenIndex++) {	//Num of EJ's = centroids
+				if (verbose) std::cerr << "in cenIndex loop: " << cenIndex << std::endl;
+				if (cenIndex==0 && NoEInFirstEJ){
+					if (verbose) std::cerr << "\tskipped saving EJ as no ele in 1st EJ" << std::endl;
+				}
+				else if (cenIndex==1 && NoEInSecondEJ){
+					if (verbose) std::cerr << "\tskipped saving EJ as no ele in 2nd EJ" << std::endl;
+				}
+				else{
+					if (verbose) std::cerr << "\tNow saving centroid info\n";
+					if (verbose) std::cerr << "centroid " << cenIndex << "\tpt: " << centroids[cenIndex].Pt() << "\teta: " << centroids[cenIndex].Eta() << "\tphi: " << centroids[cenIndex].Phi() << std::endl;
+					if (verbose) std::cerr << centroids[cenIndex] << std::endl;
+					TVector3 axis;
+					axis.SetPtEtaPhi(centroids[cenIndex].Pt(), centroids[cenIndex].Eta(), centroids[cenIndex].Phi());
+					double maxdR = -1;
+					unsigned maxindex(0);
+					double maxdRminpT = -1;
+					unsigned maxindexminpT;
+					for (unsigned k = 0; k < elevec.size(); k++) {
+						if (verbose) std::cerr << "\tlooping over eles ... " << std::endl;
+						if (elevec[k].second == cenIndex) {
+							TVector3 e(elevec[k].first.px(), elevec[k].first.py(), elevec[k].first.pz());
+							double dR = axis.DrEtaPhi(e);
+							if (dR > maxdR) {
+								maxdR = dR;
+								maxindex = k;
+							}
+							if (elevec[k].first.pt() >= 2.) {
+								if (dR > maxdRminpT) {
+									maxdRminpT = dR;
+									maxindexminpT = k;
+								}
 							}
 						}
+					} // loop over gen eles ...
+					if (verbose) std::cout << "\t--> max dist: " << maxdR << "\t--> max dist min pT: " << maxdRminpT << "\t index: " << maxindex << std::endl;
+					// save ...
+	//				if (verbose) std::cout << "energyFromEles: " << energyFromEles[cenIndex] << std::endl;
+					double sigMET(0);
+					TLorentzVector sigMETp4(0,0,0,0);
+					if (verbose) std::cout << "genSigMetVector.size(): " << genSigMetVector->size() << std::endl;
+					for (unsigned metIndex = 0; metIndex < genSigMetVector->size(); metIndex++) {
+						MyGenParticle m = genSigMetVector->at(metIndex);
+						if (m.label == cenIndex){
+							sigMET+=m.p4.Pt();
+							sigMETp4 += m.p4;
+						}
 					}
-				} // loop over gen eles ...
-				if (verbose) std::cout << "\t--> max dist: " << maxdR << "\t--> max dist min pT: " << maxdRminpT << "\t index: " << maxindex << std::endl;
-				// save ...
-//				if (verbose) std::cout << "energyFromEles: " << energyFromEles[j] << std::endl;
-				double sigMET(0);
-				TLorentzVector sigMETp4(0,0,0,0);
-				if (verbose) std::cout << "genSigMetVector.size(): " << genSigMetVector->size() << std::endl;
-				for (unsigned metIndex = 0; metIndex < genSigMetVector->size(); metIndex++) {
-					MyGenParticle* m = genSigMetVector->at(metIndex);
-					if (m->label == j){
-						sigMET+=m->p4.Pt();
-						sigMETp4 += m->p4;
-//						sigMETp4 += math::XYZTLorentzVector(m->p4.Px(),m->p4.Py(),m->p4.Pz(),m->p4.Energy());
-					}
-				}
-				if (verbose) std::cout << "sigMET: " << sigMET << std::endl;
-				MyPFJet* genjet = new MyPFJet();
-				genjet->p4 = TLorentzVector(axis, energyFromEles[j]);
-				genjet->dR = maxdR;
-				genjet->dRminpT = maxdRminpT;
-				genjet->nele = neles[j];
-				genjet->met = sigMET;
-				genjet->metp4 = sigMETp4;
-//				genjet->metp4 = math::XYZTLorentzVector(sigMETp4.p4.Px(),sigMETp4.p4.Py(),sigMETp4.p4.Pz(),sigMETp4.p4.Energy());
-				genjet->index = j;
-				genjetVector->push_back(genjet);
-				if (verbose) std::cout << "genjet->p4.Energy(): " << genjet->p4.Energy() << std::endl;
-				if (verbose) std::cout << "genjetVector->size(): " << genjetVector->size() << std::endl;
-//				MyCaloJet* calogenjet = new MyCaloJet();
-//				calogenjet->p4 = TLorentzVector(axis, 0);
-//				calogenjet->dR = maxdR;
-//				calogenjet->dRminpT = maxdRminpT;
-//				calogenjet->nele = neles[j];
-//				calogenjet->index = j;
-//				calogenjetVector->push_back(calogenjet);
+					if (verbose) std::cout << "sigMET: " << sigMET << std::endl;
+					MyPFJet genjet;
+					genjet.p4 = TLorentzVector(axis, energyFromEles[cenIndex]);
+					genjet.dR = maxdR;
+					genjet.dRminpT = maxdRminpT;
+					genjet.nele = neles[cenIndex];
+					genjet.met = sigMET;
+					genjet.metp4 = sigMETp4;
+					genjet.index = cenIndex;
+					genjetVector->push_back(genjet);	// ToDo: Store EJ with no electrons in them
+					if (verbose) std::cout << "genjet.p4.Energy(): " << genjet.p4.Energy() << std::endl;
+					if (verbose) std::cout << "genjetVector->size(): " << genjetVector->size() << std::endl;
+				} // can store the EJ
 			} // loop over centroids
 		} // if we found some eles
 		if (verbose) std::cout << "--- gjetvec size: " << genjetVector->size() << std::endl;
@@ -857,17 +884,17 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 //########################### Photons ###########################
 	photonVector->clear();
 	for (unsigned i = 0; i < Photons->size(); i++) {
-		MyPhoton* photon = new MyPhoton;
-		photon->p4 = TLorentzVector(0, 0, 0, 0);
-		photon->p4.SetPtEtaPhiE((*Photons)[i].pt(), (*Photons)[i].eta(),(*Photons)[i].phi(), (*Photons)[i].energy());
-		photon->Iecal = (*Photons)[i].ecalRecHitSumEtConeDR04();
-		photon->Ihcal = (*Photons)[i].hcalTowerSumEtConeDR04();
-		photon->Itrk = (*Photons)[i].trkSumPtHollowConeDR04();
-		photon->hOe = (*Photons)[i].hadronicOverEm();
-		photon->sigieie = (*Photons)[i].sigmaIetaIeta();
-		photon->hasPixSeed = (*Photons)[i].hasPixelSeed();
-		photon->isEB = (*Photons)[i].isEB();
-		photon->isEE = (*Photons)[i].isEE();
+		MyPhoton photon;
+		photon.p4 = TLorentzVector(0, 0, 0, 0);
+		photon.p4.SetPtEtaPhiE((*Photons)[i].pt(), (*Photons)[i].eta(),(*Photons)[i].phi(), (*Photons)[i].energy());
+		photon.Iecal = (*Photons)[i].ecalRecHitSumEtConeDR04();
+		photon.Ihcal = (*Photons)[i].hcalTowerSumEtConeDR04();
+		photon.Itrk = (*Photons)[i].trkSumPtHollowConeDR04();
+		photon.hOe = (*Photons)[i].hadronicOverEm();
+		photon.sigieie = (*Photons)[i].sigmaIetaIeta();
+		photon.hasPixSeed = (*Photons)[i].hasPixelSeed();
+		photon.isEB = (*Photons)[i].isEB();
+		photon.isEE = (*Photons)[i].isEE();
 		photonVector->push_back(photon);
 	}
 
@@ -907,25 +934,25 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		}
 		if (verbose) std::cout << "\t###finished filling numEle: " << numEle << " and numFixedEle: " << numFixedEle << std::endl;
 
-		MyCaloJet* calojet = new MyCaloJet;
-		calojet->p4 = TLorentzVector(0, 0, 0, 0);
-		calojet->p4.SetPtEtaPhiE((*ak5caloJets)[i].pt(), (*ak5caloJets)[i].eta(), (*ak5caloJets)[i].phi(), (*ak5caloJets)[i].energy());
-		calojet->p4cor.SetPtEtaPhiE(correctedJet.pt(), correctedJet.eta(), correctedJet.phi(), correctedJet.energy());
-		calojet->energy = (*ak5caloJets)[i].energy();
-		calojet->et = (*ak5caloJets)[i].et();
-		calojet->area = (*ak5caloJets)[i].jetArea();
-		calojet->etaeta = (*ak5caloJets)[i].etaetaMoment();
-		calojet->phiphi = (*ak5caloJets)[i].phiphiMoment();
-		calojet->etaphi = (*ak5caloJets)[i].etaphiMoment();
-		calojet->nele = numEle;
-		calojet->neleFixed = numFixedEle;
-		calojet->emf = (*ak5caloJets)[i].emEnergyFraction();
-		calojet->ntrks = ntrks;
-		calojet->dR = (*ak5caloJets)[i].maxDistance();
-		calojet->crtrans = sumPt / ((*ak5caloJets)[i].et() * (*ak5caloJets)[i].emEnergyFraction());
-		calojet->cr = sumPt / ((*ak5caloJets)[i].energy() * (*ak5caloJets)[i].emEnergyFraction());
-		calojet->Ical = (*ak5caloJets)[i].etInAnnulus(0.2, 0.4);
-		calojet->Et_0_2 = (*ak5caloJets)[i].etInAnnulus(0.0, 0.2);
+		MyCaloJet calojet;
+		calojet.p4 = TLorentzVector(0, 0, 0, 0);
+		calojet.p4.SetPtEtaPhiE((*ak5caloJets)[i].pt(), (*ak5caloJets)[i].eta(), (*ak5caloJets)[i].phi(), (*ak5caloJets)[i].energy());
+		calojet.p4cor.SetPtEtaPhiE(correctedJet.pt(), correctedJet.eta(), correctedJet.phi(), correctedJet.energy());
+		calojet.energy = (*ak5caloJets)[i].energy();
+		calojet.et = (*ak5caloJets)[i].et();
+		calojet.area = (*ak5caloJets)[i].jetArea();
+		calojet.etaeta = (*ak5caloJets)[i].etaetaMoment();
+		calojet.phiphi = (*ak5caloJets)[i].phiphiMoment();
+		calojet.etaphi = (*ak5caloJets)[i].etaphiMoment();
+		calojet.nele = numEle;
+		calojet.neleFixed = numFixedEle;
+		calojet.emf = (*ak5caloJets)[i].emEnergyFraction();
+		calojet.ntrks = ntrks;
+		calojet.dR = (*ak5caloJets)[i].maxDistance();
+		calojet.crtrans = sumPt / ((*ak5caloJets)[i].et() * (*ak5caloJets)[i].emEnergyFraction());
+		calojet.cr = sumPt / ((*ak5caloJets)[i].energy() * (*ak5caloJets)[i].emEnergyFraction());
+		calojet.Ical = (*ak5caloJets)[i].etInAnnulus(0.2, 0.4);
+		calojet.Et_0_2 = (*ak5caloJets)[i].etInAnnulus(0.0, 0.2);
 		double Itrk = 0.0;
 		unsigned ntrkAbove1 = 0, ntrkAbove2_5 = 0, ntrkAbove5 = 0;
 		for (unsigned t = 0; t < calotracks.size(); ++t) {
@@ -936,20 +963,20 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 			if (track.pt() >= 5.0) ntrkAbove5++;
 			TVector3 tvec(0, 0, 0);
 			tvec.SetPtEtaPhi(track.pt(), track.eta(), track.phi());
-			double dR = calojet->p4.Vect().DrEtaPhi(tvec);
+			double dR = calojet.p4.Vect().DrEtaPhi(tvec);
 			if (dR < 0.4 && dR > 0.2) Itrk += track.pt();	// BRS: where do these numbers come from? Ical Itrk
 		}
-		calojet->Itrk = Itrk;
-		calojet->ntrkAbove1 = ntrkAbove1;
-		calojet->ntrkAbove2_5 = ntrkAbove2_5;
-		calojet->ntrkAbove5 = ntrkAbove5;
+		calojet.Itrk = Itrk;
+		calojet.ntrkAbove1 = ntrkAbove1;
+		calojet.ntrkAbove2_5 = ntrkAbove2_5;
+		calojet.ntrkAbove5 = ntrkAbove5;
 
 		// Loop over btags
 		bool found_btag_info = false;
 		for (unsigned int b = 0; b != bTags_secvtx.size(); ++b) {
 			if ((*ak5caloJets)[i].pt() == bTags_secvtx[b].first->pt()) {
 				//	 if (verbose) std::cout << "-->found btag info ... discrim: " << bTags_secvtx[b].second << std::endl;
-				calojet->btag_secvtx = bTags_secvtx[b].second;
+				calojet.btag_secvtx = bTags_secvtx[b].second;
 				found_btag_info = true;
 				break;
 			}
@@ -959,7 +986,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		for (unsigned int b = 0; b != bTags_softele.size(); ++b) {
 			if ((*ak5caloJets)[i].pt() == bTags_softele[b].first->pt()) {
 				//	 if (verbose) std::cout << "-->found btag info ... discrim: " << bTags_softele[b].second << std::endl;
-				calojet->btag_softele = bTags_softele[b].second;
+				calojet.btag_softele = bTags_softele[b].second;
 				found_btag_info = true;
 				break;
 			}
@@ -969,7 +996,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		for (unsigned int b = 0; b != bTags_jetprob.size(); ++b) {
 			if ((*ak5caloJets)[i].pt() == bTags_jetprob[b].first->pt()) {
 				//	 if (verbose) std::cout << "-->found btag info ... discrim: " << bTags_jetprob[b].second << std::endl;
-				calojet->btag_jetprob = bTags_jetprob[b].second;
+				calojet.btag_jetprob = bTags_jetprob[b].second;
 				found_btag_info = true;
 				break;
 			}
@@ -1011,25 +1038,25 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		}
 		if (verbose) std::cout << "\t###finished filling numEle: " << numEle << " and numFixedEle: " << numFixedEle << std::endl;
 
-		MyCaloJet* calojet = new MyCaloJet;
-		calojet->p4 = TLorentzVector(0, 0, 0, 0);
-		calojet->p4.SetPtEtaPhiE((*ak7caloJets)[i].pt(), (*ak7caloJets)[i].eta(), (*ak7caloJets)[i].phi(), (*ak7caloJets)[i].energy());
-		calojet->p4cor.SetPtEtaPhiE(correctedJet.pt(), correctedJet.eta(), correctedJet.phi(), correctedJet.energy());
-		calojet->energy = (*ak7caloJets)[i].energy();
-		calojet->et = (*ak7caloJets)[i].et();
-		calojet->area = (*ak7caloJets)[i].jetArea();
-		calojet->etaeta = (*ak7caloJets)[i].etaetaMoment();
-		calojet->phiphi = (*ak7caloJets)[i].phiphiMoment();
-		calojet->etaphi = (*ak7caloJets)[i].etaphiMoment();
-		calojet->nele = numEle;
-		calojet->neleFixed = numFixedEle;
-		calojet->emf = (*ak7caloJets)[i].emEnergyFraction();
-		calojet->ntrks = ntrks;
-		calojet->dR = (*ak7caloJets)[i].maxDistance();
-		calojet->crtrans = sumPt / ((*ak7caloJets)[i].et() * (*ak7caloJets)[i].emEnergyFraction());
-		calojet->cr = sumPt / ((*ak7caloJets)[i].energy() * (*ak7caloJets)[i].emEnergyFraction());
-		calojet->Ical = (*ak7caloJets)[i].etInAnnulus(0.2, 0.4);
-		calojet->Et_0_2 = (*ak7caloJets)[i].etInAnnulus(0.0, 0.2);
+		MyCaloJet calojet;
+		calojet.p4 = TLorentzVector(0, 0, 0, 0);
+		calojet.p4.SetPtEtaPhiE((*ak7caloJets)[i].pt(), (*ak7caloJets)[i].eta(), (*ak7caloJets)[i].phi(), (*ak7caloJets)[i].energy());
+		calojet.p4cor.SetPtEtaPhiE(correctedJet.pt(), correctedJet.eta(), correctedJet.phi(), correctedJet.energy());
+		calojet.energy = (*ak7caloJets)[i].energy();
+		calojet.et = (*ak7caloJets)[i].et();
+		calojet.area = (*ak7caloJets)[i].jetArea();
+		calojet.etaeta = (*ak7caloJets)[i].etaetaMoment();
+		calojet.phiphi = (*ak7caloJets)[i].phiphiMoment();
+		calojet.etaphi = (*ak7caloJets)[i].etaphiMoment();
+		calojet.nele = numEle;
+		calojet.neleFixed = numFixedEle;
+		calojet.emf = (*ak7caloJets)[i].emEnergyFraction();
+		calojet.ntrks = ntrks;
+		calojet.dR = (*ak7caloJets)[i].maxDistance();
+		calojet.crtrans = sumPt / ((*ak7caloJets)[i].et() * (*ak7caloJets)[i].emEnergyFraction());
+		calojet.cr = sumPt / ((*ak7caloJets)[i].energy() * (*ak7caloJets)[i].emEnergyFraction());
+		calojet.Ical = (*ak7caloJets)[i].etInAnnulus(0.2, 0.4);
+		calojet.Et_0_2 = (*ak7caloJets)[i].etInAnnulus(0.0, 0.2);
 		double Itrk = 0.0;
 		unsigned ntrkAbove1 = 0, ntrkAbove2_5 = 0, ntrkAbove5 = 0;
 		for (unsigned t = 0; t < calotracks.size(); ++t) {
@@ -1040,20 +1067,20 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 			if (track.pt() >= 5.0) ntrkAbove5++;
 			TVector3 tvec(0, 0, 0);
 			tvec.SetPtEtaPhi(track.pt(), track.eta(), track.phi());
-			double dR = calojet->p4.Vect().DrEtaPhi(tvec);
+			double dR = calojet.p4.Vect().DrEtaPhi(tvec);
 			if (dR < 0.4 && dR > 0.2) Itrk += track.pt();	// BRS: where do these numbers come from? Ical Itrk
 		}
-		calojet->Itrk = Itrk;
-		calojet->ntrkAbove1 = ntrkAbove1;
-		calojet->ntrkAbove2_5 = ntrkAbove2_5;
-		calojet->ntrkAbove5 = ntrkAbove5;
+		calojet.Itrk = Itrk;
+		calojet.ntrkAbove1 = ntrkAbove1;
+		calojet.ntrkAbove2_5 = ntrkAbove2_5;
+		calojet.ntrkAbove5 = ntrkAbove5;
 
 		// Loop over btags
 		bool found_btag_info = false;
 		for (unsigned int b = 0; b != bTags_secvtx.size(); ++b) {
 			if ((*ak7caloJets)[i].pt() == bTags_secvtx[b].first->pt()) {
 				//	 if (verbose) std::cout << "-->found btag info ... discrim: " << bTags_secvtx[b].second << std::endl;
-				calojet->btag_secvtx = bTags_secvtx[b].second;
+				calojet.btag_secvtx = bTags_secvtx[b].second;
 				found_btag_info = true;
 				break;
 			}
@@ -1063,7 +1090,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		for (unsigned int b = 0; b != bTags_softele.size(); ++b) {
 			if ((*ak7caloJets)[i].pt() == bTags_softele[b].first->pt()) {
 				//	 if (verbose) std::cout << "-->found btag info ... discrim: " << bTags_softele[b].second << std::endl;
-				calojet->btag_softele = bTags_softele[b].second;
+				calojet.btag_softele = bTags_softele[b].second;
 				found_btag_info = true;
 				break;
 			}
@@ -1073,7 +1100,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		for (unsigned int b = 0; b != bTags_jetprob.size(); ++b) {
 			if ((*ak7caloJets)[i].pt() == bTags_jetprob[b].first->pt()) {
 				//	 if (verbose) std::cout << "-->found btag info ... discrim: " << bTags_jetprob[b].second << std::endl;
-				calojet->btag_jetprob = bTags_jetprob[b].second;
+				calojet.btag_jetprob = bTags_jetprob[b].second;
 				found_btag_info = true;
 				break;
 			}
@@ -1086,181 +1113,181 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		if (verbose) std::cout << "calo HAD: " << (*ak7caloJets)[i].energy() * (1 - (*ak7caloJets)[i].emEnergyFraction()) << std::endl;
 	}
 
-//########################### PFJets ###########################
-	if (verbose) std::cout << "--- pfjets: " << pfJets->size() << std::endl;
-	pfjetVector->clear();
-	pfeleVector->clear();
-	for (unsigned i = 0; i < pfJets->size(); i++) {
-		reco::TrackRefVector pftracks = (*pfJets)[i].getTrackRefs();
-		math::XYZTLorentzVector result(0, 0, 0, 0);
-		for (unsigned t = 0; t < pftracks.size(); ++t) {
-			// vector sum for axis
-			const reco::Track& track = *(pftracks[t]);
-			result += math::XYZTLorentzVector(track.px(), track.py(),
-					track.pz(), track.p()); // massless hypothesis
-		}
-		float sumPt = result.pt();
-		if (verbose) std::cout << "\tPF:: nele: " << (*pfJets)[i].electronMultiplicity()
-				<< "\tnphoton: " << (*pfJets)[i].photonMultiplicity()
-				<< "\teleFrac: " << (*pfJets)[i].electronEnergyFraction()
-				<< std::endl;
-
-		MyPFJet* pfjet = new MyPFJet;
-		pfjet->p4 = TLorentzVector(0, 0, 0, 0);
-		pfjet->p4.SetPtEtaPhiE((*pfJets)[i].pt(), (*pfJets)[i].eta(),(*pfJets)[i].phi(), (*pfJets)[i].energy());
-		pfjet->area = (*pfJets)[i].jetArea();
-		pfjet->etaeta = (*pfJets)[i].etaetaMoment();
-		pfjet->phiphi = (*pfJets)[i].phiphiMoment();
-		pfjet->etaphi = (*pfJets)[i].etaphiMoment();
-		pfjet->et = (*pfJets)[i].et();
-		pfjet->ntrks = pftracks.size(); //(*pfJets)[i].electronMultiplicity();
-		pfjet->nele = (*pfJets)[i].electronMultiplicity();
-		pfjet->nphoton = (*pfJets)[i].photonMultiplicity();
-		pfjet->electron_energy = (*pfJets)[i].electronEnergy();
-		pfjet->photon_energy = (*pfJets)[i].photonEnergy();
-		pfjet->electron_energyFrac = (*pfJets)[i].electronEnergyFraction();
-		pfjet->photon_energyFrac = (*pfJets)[i].photonEnergyFraction();
-		pfjet->neutralHadFrac = (*pfJets)[i].neutralHadronEnergyFraction();
-		pfjet->chargedHadFrac = (*pfJets)[i].chargedHadronEnergyFraction();
-		pfjet->neutralEMFrac = (*pfJets)[i].neutralEmEnergyFraction();
-		pfjet->chargedEMFrac = (*pfJets)[i].chargedEmEnergyFraction();
-		pfjet->dR = (*pfJets)[i].maxDistance();
-		pfjet->emf = (*pfJets)[i].chargedEmEnergyFraction()	+ (*pfJets)[i].neutralEmEnergyFraction();
-//		pfjet->cr = sumPt/((*pfJets)[i].chargedEmEnergy() + (*pfJets)[i].neutralEmEnergy());
-		pfjet->cr = sumPt / ((*pfJets)[i].chargedEmEnergy()	+ (*pfJets)[i].neutralEmEnergy());
-		pfjet->crtrans = sumPt / ((*pfJets)[i].et() * (*pfJets)[i].chargedEmEnergyFraction()+(*pfJets)[i].neutralEmEnergyFraction());
-		pfjet->Ical = (*pfJets)[i].etInAnnulus(0.2, 0.4);
-		pfjet->Et_0_2 = (*pfJets)[i].etInAnnulus(0.0, 0.2);
-
-		pfjet->gsfeleindices = 0x0;
-		unsigned ntrks = 0, mynele = 0;
-		unsigned save_pfele_vecsize = pfeleVector->size();
-		float ecalConstitEnergy = 0, hcalConstitEnergy = 0;
-		for (unsigned c = 0; c < (*pfJets)[i].getPFConstituents().size(); c++) {
-			reco::PFCandidatePtr ptr = (*pfJets)[i].getPFConstituents()[c];
-			ecalConstitEnergy += ptr->ecalEnergy();
-			hcalConstitEnergy += ptr->hcalEnergy();
-			if (abs(ptr->pdgId()) == 11) {
-				mynele++;
-				if (verbose) std::cerr << "-------------------------" << std::endl;
-				if (verbose) std::cerr << "\tconstit is an ele ... " << std::endl;
-
-				reco::GsfTrackRef gtrk = ptr->gsfTrackRef();
-				if (gtrk.isNull()) {
-					if (verbose) std::cerr << "\tpf gsftrk ref not valid, skipping ... "	<< std::endl;
-					continue;
-				}
-				ntrks++;
-
-				reco::GsfElectronRef geleref = ptr->gsfElectronRef();
-				if (geleref.isNull()){	if (verbose) std::cerr << "\tpf gele ref not valid, skipping ... " << std::endl;}
-					//	   continue;
-				else{	if (verbose) std::cerr << "\tpf gele IS  valid, skipping ... " << std::endl;}
-
-				bool matchedEle = false;
-				unsigned gsfIndex(0);
-				reco::GsfElectron gele;
-				for (unsigned e = 0; e < gsfElectrons->size(); e++) {
-					if (gtrk == (*gsfElectrons)[e].gsfTrack()) {
-						if (verbose) std::cerr << "\t\tmatched to gsfEle " << e << std::endl;
-						pfjet->gsfeleindices |= (1 << e );
-						gsfIndex = e;
-						matchedEle = true;
-						gele = (*gsfElectrons)[e];
-						if (verbose) std::cerr << "\t\tPFstatus: " << (*gsfElectrons)[e].mvaOutput().status << std::endl;
-						if (verbose) std::cerr << "\t\tECAL driven: " << (*gsfElectrons)[e].ecalDriven() << std::endl;
-						if (verbose) std::cerr << "\t\tECAL driven seed: " << (*gsfElectrons)[e].ecalDrivenSeed() << std::endl;
-						if (verbose) std::cerr << "\t\tTK driven seed: " << (*gsfElectrons)[e].trackerDrivenSeed() << std::endl;
-						if (verbose) std::cerr << "\t\tECAL presel: " << (*gsfElectrons)[e].passingCutBasedPreselection() << std::endl;
-						if (verbose) std::cerr << "\t\tPF presel: " << (*gsfElectrons)[e].passingMvaPreselection() << std::endl;
-						//LorentzVector elep4 = (*gsfElectrons)[e].p4(reco::GsfElectron::P4_COMBINATION);
-						if (verbose) std::cerr << "\t\tmva: " << (*gsfElectrons)[e].mvaOutput().mva << std::endl;
-						if (verbose) std::cerr << "\t\tpt: " << (*gsfElectrons)[e].p4().Pt() << std::endl;
-						if (verbose) std::cerr << "\t\tconvR: " << (*gsfElectrons)[e].convRadius() << std::endl;
-					}
-				}
-				if (!matchedEle) {
-					if (verbose) std::cerr << "\t no matched GSF! " << std::endl;
-					continue;
-				}
-				else if (verbose) std::cerr << "\tmatched to GSF ele! " << std::endl;
-
-				MyPFElectron* pfele = new MyPFElectron;
-				pfele->gsfIndex = gsfIndex;
-				pfele->ecalDriven = gele.ecalDriven();
-				pfele->ecalDrivenSeed = gele.ecalDrivenSeed();
-				pfele->tkDrivenSeed = gele.trackerDrivenSeed();
-				pfele->passMvaPreselection = gele.passingMvaPreselection();
-				pfele->passCutBasedPreselection = gele.passingCutBasedPreselection();
-				pfele->pt = gele.p4().Pt();
-				pfele->mva_e_pi = gele.mvaOutput().mva;
-				pfele->convR = gele.convRadius();
-
-				unsigned hitmask = 0x0;
-				unsigned nhits = 0;
-				const reco::HitPattern& hp = gtrk->hitPattern();
-				pfele->npixHits = hp.pixelLayersWithMeasurement();
-				pfele->lostHits = gtrk->lost();
-				for (int h = 0; h < hp.numberOfHits(); h++) {
-					uint32_t hit = hp.getHitPattern(h);
-					if (hp.validHitFilter(hit) && hp.pixelHitFilter(hit)) {
-						nhits++;
-						hitmask |= (1 << (hp.getLayer(hit) - 1));
-						if (verbose) std::cerr << "\tvalid pix layer: " << hp.getLayer(hit) << std::endl;
-					}
-				}
-				if (verbose) std::cerr << "\ttotal valid pix :  " << nhits << std::endl;
-				if (verbose) std::cerr << "-------------------------" << std::endl;
-				pfele->pixHitMask = hitmask;
-				if (verbose) std::cout << "pushing back track ... " << std::endl;
-				pfeleVector->push_back(pfele);
-			}
-		}
-
-		if (pfjet->nele != mynele) {
-			if (verbose) std::cerr << "NELE DIFFERS: " << std::endl
-					<< "pf: " << pfjet->nele << std::endl
-					<< "my: " << mynele << std::endl
-					<< "quitting ... " << std::endl;
-			exit(1);
-		}
-		if (pfjet->nele > 0) {
-			pfjet->pfele_min_index = save_pfele_vecsize;
-			pfjet->pfele_max_index = pfeleVector->size() - 1;
-		}
-		else {
-			pfjet->pfele_min_index = -1;
-			pfjet->pfele_max_index = -1;
-		}
-		if (verbose) std::cerr << "nele for jet " << i << " : " << pfjet->nele << std::endl
-				<< "min index: " << pfjet->pfele_min_index << std::endl
-				<< "max index: " << pfjet->pfele_max_index << std::endl;
-
-		double Itrk = 0.;
-		for (unsigned t = 0; t < pftracks.size(); ++t) {
-			const reco::Track& track = *(pftracks[t]);
-			if (track.pt() < 0.5) continue;
-			TVector3 tvec(0, 0, 0);
-			tvec.SetPtEtaPhi(track.pt(), track.eta(), track.phi());
-			double dR = pfjet->p4.Vect().DrEtaPhi(tvec);
-			if (dR < 0.4 && dR > 0.2) Itrk += track.pt(); // scalar sum for isolation
-		}
-		pfjet->Itrk = Itrk;
-		pfjet->ecalConstitEnergy = ecalConstitEnergy;
-		pfjet->hcalConstitEnergy = hcalConstitEnergy;
-		pfjetVector->push_back(pfjet);
-
-		if (verbose) std::cout << "pt: " << pfjet->p4.Vect().Pt()
-				<< "\teta: " << pfjet->p4.Vect().Eta()
-				<< "\tphi: " << pfjet->p4.Vect().Phi()
-				<< "\temf: " << pfjet->emf
-				<< "\tcr: " << pfjet->cr
-				<< "\tECAL: " << pfjet->ecalConstitEnergy
-				<< std::endl;
-		if (verbose) std::cout << "\tHCAL: " << pfjet->hcalConstitEnergy << std::endl;
-		if (verbose) std::cout << std::endl;
-	}
-	if (verbose) std::cout << "total pfele size: " << pfeleVector->size() << std::endl;
+////########################### PFJets ###########################
+//	if (verbose) std::cout << "--- pfjets: " << pfJets->size() << std::endl;
+//	pfjetVector->clear();
+//	pfeleVector->clear();
+//	for (unsigned i = 0; i < pfJets->size(); i++) {
+//		reco::TrackRefVector pftracks = (*pfJets)[i].getTrackRefs();
+//		math::XYZTLorentzVector result(0, 0, 0, 0);
+//		for (unsigned t = 0; t < pftracks.size(); ++t) {
+//			// vector sum for axis
+//			const reco::Track& track = *(pftracks[t]);
+//			result += math::XYZTLorentzVector(track.px(), track.py(),
+//					track.pz(), track.p()); // massless hypothesis
+//		}
+//		float sumPt = result.pt();
+//		if (verbose) std::cout << "\tPF:: nele: " << (*pfJets)[i].electronMultiplicity()
+//				<< "\tnphoton: " << (*pfJets)[i].photonMultiplicity()
+//				<< "\teleFrac: " << (*pfJets)[i].electronEnergyFraction()
+//				<< std::endl;
+//
+//		MyPFJet pfjet;
+//		pfjet.p4 = TLorentzVector(0, 0, 0, 0);
+//		pfjet.p4.SetPtEtaPhiE((*pfJets)[i].pt(), (*pfJets)[i].eta(),(*pfJets)[i].phi(), (*pfJets)[i].energy());
+//		pfjet.area = (*pfJets)[i].jetArea();
+//		pfjet.etaeta = (*pfJets)[i].etaetaMoment();
+//		pfjet.phiphi = (*pfJets)[i].phiphiMoment();
+//		pfjet.etaphi = (*pfJets)[i].etaphiMoment();
+//		pfjet.et = (*pfJets)[i].et();
+//		pfjet.ntrks = pftracks.size(); //(*pfJets)[i].electronMultiplicity();
+//		pfjet.nele = (*pfJets)[i].electronMultiplicity();
+//		pfjet.nphoton = (*pfJets)[i].photonMultiplicity();
+//		pfjet.electron_energy = (*pfJets)[i].electronEnergy();
+//		pfjet.photon_energy = (*pfJets)[i].photonEnergy();
+//		pfjet.electron_energyFrac = (*pfJets)[i].electronEnergyFraction();
+//		pfjet.photon_energyFrac = (*pfJets)[i].photonEnergyFraction();
+//		pfjet.neutralHadFrac = (*pfJets)[i].neutralHadronEnergyFraction();
+//		pfjet.chargedHadFrac = (*pfJets)[i].chargedHadronEnergyFraction();
+//		pfjet.neutralEMFrac = (*pfJets)[i].neutralEmEnergyFraction();
+//		pfjet.chargedEMFrac = (*pfJets)[i].chargedEmEnergyFraction();
+//		pfjet.dR = (*pfJets)[i].maxDistance();
+//		pfjet.emf = (*pfJets)[i].chargedEmEnergyFraction()	+ (*pfJets)[i].neutralEmEnergyFraction();
+////		pfjet.cr = sumPt/((*pfJets)[i].chargedEmEnergy() + (*pfJets)[i].neutralEmEnergy());
+//		pfjet.cr = sumPt / ((*pfJets)[i].chargedEmEnergy()	+ (*pfJets)[i].neutralEmEnergy());
+//		pfjet.crtrans = sumPt / ((*pfJets)[i].et() * (*pfJets)[i].chargedEmEnergyFraction()+(*pfJets)[i].neutralEmEnergyFraction());
+//		pfjet.Ical = (*pfJets)[i].etInAnnulus(0.2, 0.4);
+//		pfjet.Et_0_2 = (*pfJets)[i].etInAnnulus(0.0, 0.2);
+//
+//		pfjet.gsfeleindices = 0x0;
+//		unsigned ntrks = 0, mynele = 0;
+//		unsigned save_pfele_vecsize = pfeleVector->size();
+//		float ecalConstitEnergy = 0, hcalConstitEnergy = 0;
+//		for (unsigned c = 0; c < (*pfJets)[i].getPFConstituents().size(); c++) {
+//			reco::PFCandidatePtr ptr = (*pfJets)[i].getPFConstituents()[c];
+//			ecalConstitEnergy += ptr->ecalEnergy();
+//			hcalConstitEnergy += ptr->hcalEnergy();
+//			if (abs(ptr->pdgId()) == 11) {
+//				mynele++;
+//				if (verbose) std::cerr << "-------------------------" << std::endl;
+//				if (verbose) std::cerr << "\tconstit is an ele ... " << std::endl;
+//
+//				reco::GsfTrackRef gtrk = ptr->gsfTrackRef();
+//				if (gtrk.isNull()) {
+//					if (verbose) std::cerr << "\tpf gsftrk ref not valid, skipping ... "	<< std::endl;
+//					continue;
+//				}
+//				ntrks++;
+//
+//				reco::GsfElectronRef geleref = ptr->gsfElectronRef();
+//				if (geleref.isNull()){	if (verbose) std::cerr << "\tpf gele ref not valid, skipping ... " << std::endl;}
+//					//	   continue;
+//				else{	if (verbose) std::cerr << "\tpf gele IS  valid, skipping ... " << std::endl;}
+//
+//				bool matchedEle = false;
+//				unsigned gsfIndex(0);
+//				reco::GsfElectron gele;
+//				for (unsigned e = 0; e < gsfElectrons->size(); e++) {
+//					if (gtrk == (*gsfElectrons)[e].gsfTrack()) {
+//						if (verbose) std::cerr << "\t\tmatched to gsfEle " << e << std::endl;
+//						pfjet.gsfeleindices |= (1 << e );
+//						gsfIndex = e;
+//						matchedEle = true;
+//						gele = (*gsfElectrons)[e];
+//						if (verbose) std::cerr << "\t\tPFstatus: " << (*gsfElectrons)[e].mvaOutput().status << std::endl;
+//						if (verbose) std::cerr << "\t\tECAL driven: " << (*gsfElectrons)[e].ecalDriven() << std::endl;
+//						if (verbose) std::cerr << "\t\tECAL driven seed: " << (*gsfElectrons)[e].ecalDrivenSeed() << std::endl;
+//						if (verbose) std::cerr << "\t\tTK driven seed: " << (*gsfElectrons)[e].trackerDrivenSeed() << std::endl;
+//						if (verbose) std::cerr << "\t\tECAL presel: " << (*gsfElectrons)[e].passingCutBasedPreselection() << std::endl;
+//						if (verbose) std::cerr << "\t\tPF presel: " << (*gsfElectrons)[e].passingMvaPreselection() << std::endl;
+//						//LorentzVector elep4 = (*gsfElectrons)[e].p4(reco::GsfElectron::P4_COMBINATION);
+//						if (verbose) std::cerr << "\t\tmva: " << (*gsfElectrons)[e].mvaOutput().mva << std::endl;
+//						if (verbose) std::cerr << "\t\tpt: " << (*gsfElectrons)[e].p4().Pt() << std::endl;
+//						if (verbose) std::cerr << "\t\tconvR: " << (*gsfElectrons)[e].convRadius() << std::endl;
+//					}
+//				}
+//				if (!matchedEle) {
+//					if (verbose) std::cerr << "\t no matched GSF! " << std::endl;
+//					continue;
+//				}
+//				else if (verbose) std::cerr << "\tmatched to GSF ele! " << std::endl;
+//
+//				MyPFElectron pfele;
+//				pfele.gsfIndex = gsfIndex;
+//				pfele.ecalDriven = gele.ecalDriven();
+//				pfele.ecalDrivenSeed = gele.ecalDrivenSeed();
+//				pfele.tkDrivenSeed = gele.trackerDrivenSeed();
+//				pfele.passMvaPreselection = gele.passingMvaPreselection();
+//				pfele.passCutBasedPreselection = gele.passingCutBasedPreselection();
+//				pfele.pt = gele.p4().Pt();
+//				pfele.mva_e_pi = gele.mvaOutput().mva;
+//				pfele.convR = gele.convRadius();
+//
+//				unsigned hitmask = 0x0;
+//				unsigned nhits = 0;
+//				const reco::HitPattern& hp = gtrk->hitPattern();
+//				pfele.npixHits = hp.pixelLayersWithMeasurement();
+//				pfele.lostHits = gtrk->lost();
+//				for (int h = 0; h < hp.numberOfHits(); h++) {
+//					uint32_t hit = hp.getHitPattern(h);
+//					if (hp.validHitFilter(hit) && hp.pixelHitFilter(hit)) {
+//						nhits++;
+//						hitmask |= (1 << (hp.getLayer(hit) - 1));
+//						if (verbose) std::cerr << "\tvalid pix layer: " << hp.getLayer(hit) << std::endl;
+//					}
+//				}
+//				if (verbose) std::cerr << "\ttotal valid pix :  " << nhits << std::endl;
+//				if (verbose) std::cerr << "-------------------------" << std::endl;
+//				pfele.pixHitMask = hitmask;
+//				if (verbose) std::cout << "pushing back track ... " << std::endl;
+//				pfeleVector->push_back(pfele);
+//			}
+//		}
+//
+//		if (pfjet.nele != mynele) {
+//			if (verbose) std::cerr << "NELE DIFFERS: " << std::endl
+//					<< "pf: " << pfjet.nele << std::endl
+//					<< "my: " << mynele << std::endl
+//					<< "quitting ... " << std::endl;
+//			exit(1);
+//		}
+//		if (pfjet.nele > 0) {
+//			pfjet.pfele_min_index = save_pfele_vecsize;
+//			pfjet.pfele_max_index = pfeleVector->size() - 1;
+//		}
+//		else {
+//			pfjet.pfele_min_index = -1;
+//			pfjet.pfele_max_index = -1;
+//		}
+//		if (verbose) std::cerr << "nele for jet " << i << " : " << pfjet.nele << std::endl
+//				<< "min index: " << pfjet.pfele_min_index << std::endl
+//				<< "max index: " << pfjet.pfele_max_index << std::endl;
+//
+//		double Itrk = 0.;
+//		for (unsigned t = 0; t < pftracks.size(); ++t) {
+//			const reco::Track& track = *(pftracks[t]);
+//			if (track.pt() < 0.5) continue;
+//			TVector3 tvec(0, 0, 0);
+//			tvec.SetPtEtaPhi(track.pt(), track.eta(), track.phi());
+//			double dR = pfjet.p4.Vect().DrEtaPhi(tvec);
+//			if (dR < 0.4 && dR > 0.2) Itrk += track.pt(); // scalar sum for isolation
+//		}
+//		pfjet.Itrk = Itrk;
+//		pfjet.ecalConstitEnergy = ecalConstitEnergy;
+//		pfjet.hcalConstitEnergy = hcalConstitEnergy;
+//		pfjetVector->push_back(pfjet);
+//
+//		if (verbose) std::cout << "pt: " << pfjet.p4.Vect().Pt()
+//				<< "\teta: " << pfjet.p4.Vect().Eta()
+//				<< "\tphi: " << pfjet.p4.Vect().Phi()
+//				<< "\temf: " << pfjet.emf
+//				<< "\tcr: " << pfjet.cr
+//				<< "\tECAL: " << pfjet.ecalConstitEnergy
+//				<< std::endl;
+//		if (verbose) std::cout << "\tHCAL: " << pfjet.hcalConstitEnergy << std::endl;
+//		if (verbose) std::cout << std::endl;
+//	}
+//	if (verbose) std::cout << "total pfele size: " << pfeleVector->size() << std::endl;
 
 //########################### SuperClusters ###########################
 	if (verbose) std::cout << "--- superclusters: " << SCCollectionEB->size()+SCCollectionEE->size() << std::endl;
@@ -1268,78 +1295,116 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 	SCVector->clear();
 	//Barrel Superclusters (Corrected)
 	for( unsigned i=0; i<SCCollectionEB->size(); i++ ) {
-		MySC* SC = new MySC;
-		SC->energy = (*SCCollectionEB)[i].rawEnergy();
-		SC->Epreshower = (*SCCollectionEB)[i].preshowerEnergy();
-		SC->point.SetXYZ((*SCCollectionEB)[i].position().x(),(*SCCollectionEB)[i].position().y(),(*SCCollectionEB)[i].position().z());
-		SC->phiWidth = (*SCCollectionEB)[i].phiWidth();
-		SC->etaWidth = (*SCCollectionEB)[i].etaWidth();
+		MySC SC;
+		SC.energy = (*SCCollectionEB)[i].rawEnergy();
+		SC.Epreshower = (*SCCollectionEB)[i].preshowerEnergy();
+		SC.point.SetXYZ((*SCCollectionEB)[i].position().x(),(*SCCollectionEB)[i].position().y(),(*SCCollectionEB)[i].position().z());
+		SC.phiWidth = (*SCCollectionEB)[i].phiWidth();
+		SC.etaWidth = (*SCCollectionEB)[i].etaWidth();
 
 		SCVector->push_back(SC);
 	}
 
 	//Endcap Superclusters (Corrected 5x5)
 	for( unsigned i=0; i<SCCollectionEE->size(); i++ ) {
-		MySC* SC = new MySC;
-		SC->energy = (*SCCollectionEE)[i].rawEnergy();
-		SC->Epreshower = (*SCCollectionEE)[i].preshowerEnergy();
-		SC->point.SetXYZ((*SCCollectionEE)[i].position().x(),(*SCCollectionEE)[i].position().y(),(*SCCollectionEE)[i].position().z());
-		SC->phiWidth = (*SCCollectionEE)[i].phiWidth();
-		SC->etaWidth = (*SCCollectionEE)[i].etaWidth();
+		MySC SC;
+		SC.energy = (*SCCollectionEE)[i].rawEnergy();
+		SC.Epreshower = (*SCCollectionEE)[i].preshowerEnergy();
+		SC.point.SetXYZ((*SCCollectionEE)[i].position().x(),(*SCCollectionEE)[i].position().y(),(*SCCollectionEE)[i].position().z());
+		SC.phiWidth = (*SCCollectionEE)[i].phiWidth();
+		SC.etaWidth = (*SCCollectionEE)[i].etaWidth();
 
 		SCVector->push_back(SC);
-	}  
+	}
 
 //########################### Muons ###########################
+	if (verbose) std::cout << "EVENT count = " << eventNr << " = " << evtdata.run << "," << evtdata.event << "," << evtdata.lumi << std::endl;
 	if (verbose) std::cout << "--- muons: " << recoMuons->size() << std::endl;
 	muonVector->clear();
 	for (unsigned i = 0; i < recoMuons->size(); i++) {
-		MyMuon * muon = new MyMuon;
-		muon->p4 = TLorentzVector((*recoMuons)[i].px(), (*recoMuons)[i].py(),(*recoMuons)[i].pz(), (*recoMuons)[i].energy());
-		muon->isGlobal = (*recoMuons)[i].isGlobalMuon();
-		muon->isTracker = (*recoMuons)[i].isTrackerMuon();
-		muon->isSA = (*recoMuons)[i].isStandAloneMuon();
-		muon->Itrk = (*recoMuons)[i].isolationR03().sumPt;	//sum of pt tracks
-		muon->trkRelChi2 = (*recoMuons)[i].combinedQuality().trkRelChi2;
-		muon->staRelChi2 = (*recoMuons)[i].combinedQuality().staRelChi2;
+		MyMuon muon;
+		muon.p4 = TLorentzVector((*recoMuons)[i].px(), (*recoMuons)[i].py(),(*recoMuons)[i].pz(), (*recoMuons)[i].energy());
+		muon.isGlobal = (*recoMuons)[i].isGlobalMuon();
+		muon.isTracker = (*recoMuons)[i].isTrackerMuon();
+		muon.isSA = (*recoMuons)[i].isStandAloneMuon();
+		muon.Itrk = (*recoMuons)[i].isolationR03().sumPt;	//sum of pt tracks
+		muon.trkRelChi2 = (*recoMuons)[i].combinedQuality().trkRelChi2;
+		muon.staRelChi2 = (*recoMuons)[i].combinedQuality().staRelChi2;
+		muon.globalTrkIsNonNull = (*recoMuons)[i].globalTrack().isNonnull();	//somehow this value can be set without this setting...
+		muon.innerTrkIsNonNull = (*recoMuons)[i].innerTrack().isNonnull();
 
 		if (verbose) std::cout << "\tlooking for muon ID variables ..." << std::endl;	// can probably use automated funcs here if you trust them
 		if ((*recoMuons)[i].globalTrack().isNonnull()){
-			muon->globalTrkNormChi2 = (*recoMuons)[i].globalTrack()->normalizedChi2();
-			muon->globalTrkMuHits = (*recoMuons)[i].globalTrack()->hitPattern().numberOfValidMuonHits();
+			muon.globalTrkNormChi2 = (*recoMuons)[i].globalTrack()->normalizedChi2();
+			muon.globalTrkMuHits = (*recoMuons)[i].globalTrack()->hitPattern().numberOfValidMuonHits();
 		}
 		else{
-			muon->globalTrkNormChi2 = -1;
-			muon->globalTrkMuHits = -1;
+			muon.globalTrkNormChi2 = -1;
+			muon.globalTrkMuHits = -1;
 		}
-		muon->numMatchedStations = (*recoMuons)[i].numberOfMatchedStations();
+		muon.numMatchedStations = (*recoMuons)[i].numberOfMatchedStations();
 		if ((*recoMuons)[i].innerTrack().isNonnull()){
 			if (goodVertices.size()>0){
-				muon->trkIPxy = fabs((*recoMuons)[i].innerTrack()->dxy(goodVertices.at(0)->position()));
-				muon->trkIPz = fabs((*recoMuons)[i].innerTrack()->dz(goodVertices.at(0)->position()));
+				muon.trkIPxy = fabs((*recoMuons)[i].innerTrack()->dxy(goodVertices.at(0)->position()));
+				muon.trkIPz = fabs((*recoMuons)[i].innerTrack()->dz(goodVertices.at(0)->position()));
 			}
 			else{
-				muon->trkIPxy = fabs((*recoMuons)[i].innerTrack()->dxy());
-				muon->trkIPz = fabs((*recoMuons)[i].innerTrack()->dz());
+				muon.trkIPxy = fabs((*recoMuons)[i].innerTrack()->dxy());
+				muon.trkIPz = fabs((*recoMuons)[i].innerTrack()->dz());
 			}
-			muon->numPixelHits = (*recoMuons)[i].innerTrack()->hitPattern().numberOfValidPixelHits();
-			muon->numTrkHits = (*recoMuons)[i].innerTrack()->hitPattern().numberOfValidTrackerHits(); //Older selection = same as VHbb; still acceptable
-			muon->innerTrkNormChi2 = (*recoMuons)[i].innerTrack()->normalizedChi2();
-			muon->numPixelLayers = (*recoMuons)[i].innerTrack()->hitPattern().pixelLayersWithMeasurement();
+			muon.numPixelHits = (*recoMuons)[i].innerTrack()->hitPattern().numberOfValidPixelHits();
+			muon.numTrkHits = (*recoMuons)[i].innerTrack()->hitPattern().numberOfValidTrackerHits(); //Older selection = same as VHbb; still acceptable
+			muon.innerTrkNormChi2 = (*recoMuons)[i].innerTrack()->normalizedChi2();
+			muon.numPixelLayers = (*recoMuons)[i].innerTrack()->hitPattern().pixelLayersWithMeasurement();
 		}
 		else{
-			muon->trkIPxy = -1.0;
-			muon->trkIPz = -1.0;
-			muon->numPixelHits = -1;
-			muon->numTrkHits = -1;
-			muon->innerTrkNormChi2 = -1;
-			muon->numPixelLayers = -1;
+			muon.trkIPxy = -1.0;
+			muon.trkIPz = -1.0;
+			muon.numPixelHits = -1;
+			muon.numTrkHits = -1;
+			muon.innerTrkNormChi2 = -1;
+			muon.numPixelLayers = -1;
 		}
 
 		if (verbose) std::cout << "\tlooking for muon isolation variables ..." << std::endl;
-		muon->combIso = ((*recoMuons)[i].isolationR03().sumPt + (*recoMuons)[i].isolationR03().emEt + (*recoMuons)[i].isolationR03().hadEt)/(*recoMuons)[i].pt();
-		muon->trkIso = (*recoMuons)[i].isolationR03().sumPt/(*recoMuons)[i].pt();
+		muon.combIso = ((*recoMuons)[i].isolationR03().sumPt + (*recoMuons)[i].isolationR03().emEt + (*recoMuons)[i].isolationR03().hadEt)/(*recoMuons)[i].pt();
+		muon.trkIso = (*recoMuons)[i].isolationR03().sumPt/(*recoMuons)[i].pt();
 
+		if (verbose){
+			std::cout << "MUON["<<i<<"]" << std::endl;
+			std::cout << "\tpt = " <<  (*recoMuons)[i].pt() << std::endl;
+			std::cout << "\tisGlobal = " << (*recoMuons)[i].isGlobalMuon() << std::endl;
+			std::cout << "\tisTracker = " << (*recoMuons)[i].isTrackerMuon() << std::endl;
+			std::cout << "\tisSA = " << (*recoMuons)[i].isStandAloneMuon() << std::endl;
+			std::cout << "\tItrk = " << (*recoMuons)[i].isolationR03().sumPt << std::endl;	//sum of pt tracks
+			std::cout << "\tglobalTrkIsNonNull = " << (*recoMuons)[i].globalTrack().isNonnull() << std::endl;
+			std::cout << "\tinnerTrkIsNonNull = " << (*recoMuons)[i].innerTrack().isNonnull() << std::endl;
+			std::cout << "\ttrkRelChi2 = " << (*recoMuons)[i].combinedQuality().trkRelChi2 << std::endl;
+			std::cout << "\tstaRelChi2 = " << (*recoMuons)[i].combinedQuality().staRelChi2 << std::endl;
+			std::cout << "\tlooking for muon ID variables ..." << std::endl;	// can probably use automated funcs here if you trust them
+			if ((*recoMuons)[i].globalTrack().isNonnull()){
+				std::cout << "\tglobalTrkNormChi2 = " << (*recoMuons)[i].globalTrack()->normalizedChi2() << std::endl;
+				std::cout << "\tglobalTrkMuHits = " << (*recoMuons)[i].globalTrack()->hitPattern().numberOfValidMuonHits() << std::endl;
+			}
+			std::cout << "\tnumberOfMatchedStations = " << (*recoMuons)[i].numberOfMatchedStations() << std::endl;
+			if ((*recoMuons)[i].innerTrack().isNonnull()){
+				if (goodVertices.size()>0){
+					std::cout << "\ttrkIPxy = " << fabs((*recoMuons)[i].innerTrack()->dxy(goodVertices.at(0)->position())) << std::endl;
+					std::cout << "\ttrkIPz = " << fabs((*recoMuons)[i].innerTrack()->dz(goodVertices.at(0)->position())) << std::endl;
+				}
+				else{
+					std::cout << "\ttrkIPxy = " << fabs((*recoMuons)[i].innerTrack()->dxy()) << std::endl;
+					std::cout << "\ttrkIPz = " << fabs((*recoMuons)[i].innerTrack()->dz()) << std::endl;
+				}
+				std::cout << "\tnumPixelHits = " << (*recoMuons)[i].innerTrack()->hitPattern().numberOfValidPixelHits() << std::endl;
+				std::cout << "\tnumTrkHits = " << (*recoMuons)[i].innerTrack()->hitPattern().numberOfValidTrackerHits() << std::endl; //Older selection = same as VHbb; still acceptable
+				std::cout << "\tinnerTrkNormChi2 = " << (*recoMuons)[i].innerTrack()->normalizedChi2() << std::endl;
+				std::cout << "\tnumPixelLayers = " << (*recoMuons)[i].innerTrack()->hitPattern().pixelLayersWithMeasurement() << std::endl;
+			}
+			std::cout << "\tlooking for muon isolation variables ..." << std::endl;
+			std::cout << "\tcombIso = " << ((*recoMuons)[i].isolationR03().sumPt + (*recoMuons)[i].isolationR03().emEt + (*recoMuons)[i].isolationR03().hadEt)/(*recoMuons)[i].pt() << std::endl;
+			std::cout << "\ttrkIso = " << (*recoMuons)[i].isolationR03().sumPt/(*recoMuons)[i].pt() << std::endl;
+		}
 		if (verbose) std::cout << "\tsaving muon" << std::endl;
 		muonVector->push_back(muon);
 	}
@@ -1351,53 +1416,53 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		if (verbose) std::cout << "pt: " << (*gsfElectrons)[i].pt() << "\teta: " << (*gsfElectrons)[i].eta();
 //		if (verbose) std::cout << "\tfflags: " << std::hex << (*gsfElectrons)[i].fiducialFlags() << std::dec;
 		if (verbose) std::cout << std::endl;
-		MyRecoElectron* ele = new MyRecoElectron;
-		ele->p4 = TLorentzVector(0, 0, 0, 0);
-		ele->p4.SetPtEtaPhiE((*gsfElectrons)[i].pt(), (*gsfElectrons)[i].eta(),	(*gsfElectrons)[i].phi(), (*gsfElectrons)[i].energy());
+		MyRecoElectron ele;
+		ele.p4 = TLorentzVector(0, 0, 0, 0);
+		ele.p4.SetPtEtaPhiE((*gsfElectrons)[i].pt(), (*gsfElectrons)[i].eta(),	(*gsfElectrons)[i].phi(), (*gsfElectrons)[i].energy());
 
 		if (verbose) std::cout << "\tfinding electron ID variables\n";	// can probably use automated funcs here if you trust them
-		ele->sigieie = (*gsfElectrons)[i].sigmaIetaIeta();
-		ele->deta = (*gsfElectrons)[i].deltaEtaSuperClusterTrackAtVtx();
-		ele->dphi = (*gsfElectrons)[i].deltaPhiSuperClusterTrackAtVtx();
-		ele->HoverE = (*gsfElectrons)[i].hadronicOverEm();
-		ele->eSCoverP = (*gsfElectrons)[i].eSuperClusterOverP();
-		ele->Itrk = (*gsfElectrons)[i].dr03TkSumPt();
-		ele->Iecal = (*gsfElectrons)[i].dr03EcalRecHitSumEt();	// switched from dr04 to dr03
-		ele->Ihcal = (*gsfElectrons)[i].dr03HcalTowerSumEt();
-//		ele->convDist = (*gsfElectrons)[i].convDist();
-//		ele->convDcot = (*gsfElectrons)[i].convDcot();
-		ele->misHits = (*gsfElectrons)[i].gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-		ele->fBrem = (*gsfElectrons)[i].fbrem();
-		ele->E = (*gsfElectrons)[i].ecalEnergy();
-		ele->p_in = (*gsfElectrons)[i].ecalEnergy()/(*gsfElectrons)[i].eSuperClusterOverP();
-//		ele->p_in = (*gsfElectrons)[i].trackMomentumAtVtx().p();
+		ele.sigieie = (*gsfElectrons)[i].sigmaIetaIeta();
+		ele.deta = (*gsfElectrons)[i].deltaEtaSuperClusterTrackAtVtx();
+		ele.dphi = (*gsfElectrons)[i].deltaPhiSuperClusterTrackAtVtx();
+		ele.HoverE = (*gsfElectrons)[i].hadronicOverEm();
+		ele.eSCoverP = (*gsfElectrons)[i].eSuperClusterOverP();
+		ele.Itrk = (*gsfElectrons)[i].dr03TkSumPt();
+		ele.Iecal = (*gsfElectrons)[i].dr03EcalRecHitSumEt();	// switched from dr04 to dr03
+		ele.Ihcal = (*gsfElectrons)[i].dr03HcalTowerSumEt();
+//		ele.convDist = (*gsfElectrons)[i].convDist();
+//		ele.convDcot = (*gsfElectrons)[i].convDcot();
+		ele.misHits = (*gsfElectrons)[i].gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+		ele.fBrem = (*gsfElectrons)[i].fbrem();
+		ele.E = (*gsfElectrons)[i].ecalEnergy();
+		ele.p_in = (*gsfElectrons)[i].ecalEnergy()/(*gsfElectrons)[i].eSuperClusterOverP();
+//		ele.p_in = (*gsfElectrons)[i].trackMomentumAtVtx().p();
 		if (goodVertices.size()>0){
-			ele->trkDxy = (*gsfElectrons)[i].gsfTrack()->dxy(goodVertices.at(0)->position());
-			ele->trkDz = (*gsfElectrons)[i].gsfTrack()->dz(goodVertices.at(0)->position());
+			ele.trkDxy = (*gsfElectrons)[i].gsfTrack()->dxy(goodVertices.at(0)->position());
+			ele.trkDz = (*gsfElectrons)[i].gsfTrack()->dz(goodVertices.at(0)->position());
 		}
 		else{
-			ele->trkDxy = (*gsfElectrons)[i].gsfTrack()->dxy();
-			ele->trkDz = (*gsfElectrons)[i].gsfTrack()->dz();
-//			ele->trkDxy = -1.0;
-//			ele->trkDz = -1.0;
+			ele.trkDxy = (*gsfElectrons)[i].gsfTrack()->dxy();
+			ele.trkDz = (*gsfElectrons)[i].gsfTrack()->dz();
+//			ele.trkDxy = -1.0;
+//			ele.trkDz = -1.0;
 		}
-		ele->isEB = (*gsfElectrons)[i].isEB();
-		ele->isEE = (*gsfElectrons)[i].isEE();
-		((*gsfElectrons)[i].ecalDrivenSeed() != 0 ) ? ele->ecalDriven = 1 : ele->ecalDriven = 0;
-		((*gsfElectrons)[i].trackerDrivenSeed() != 0 ) ? ele->trkDriven = 1 : ele->trkDriven = 0;
-		ele->SCenergy = (*gsfElectrons)[i].superCluster()->energy();
+		ele.isEB = (*gsfElectrons)[i].isEB();
+		ele.isEE = (*gsfElectrons)[i].isEE();
+		((*gsfElectrons)[i].ecalDrivenSeed() != 0 ) ? ele.ecalDriven = 1 : ele.ecalDriven = 0;
+		((*gsfElectrons)[i].trackerDrivenSeed() != 0 ) ? ele.trkDriven = 1 : ele.trkDriven = 0;
+		ele.SCenergy = (*gsfElectrons)[i].superCluster()->energy();
 		TVector3 scvec((*gsfElectrons)[i].superCluster()->position().x(),(*gsfElectrons)[i].superCluster()->position().y(),(*gsfElectrons)[i].superCluster()->position().z());
-		ele->SCeta = scvec.Eta();
-		ele->SCphi = scvec.Phi();
+		ele.SCeta = scvec.Eta();
+		ele.SCphi = scvec.Phi();
 
 		//fill conversion partner track info
 		ConversionFinder convFinder;
 		//const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
 		const double bfield = 3.8;
 		ConversionInfo convInfo = convFinder.getConversionInfo((*gsfElectrons)[i], hGeneralTracks, bfield);
-		ele->convDcot = convInfo.dcot();
-		ele->convDist = convInfo.dist();
-		ele->convR = convInfo.radiusOfConversion();
+		ele.convDcot = convInfo.dcot();
+		ele.convDist = convInfo.dist();
+		ele.convR = convInfo.radiusOfConversion();
 
 		/*
 		 reco::TrackRef convTrackRef = convInfo.conversionPartnerTk();
@@ -1417,72 +1482,73 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 	if (verbose) std::cout << "================================================"	<< std::endl;
 	if (verbose) std::cout << "Freeing memory ...\n";
 
-	if (verbose) std::cout << "Freeing memory puVector...\n";
-	for (unsigned x = 0; x < puVector->size(); x++) {
-		delete puVector->at(x);
-		puVector->at(x) = NULL;
-	}
-	if (verbose) std::cout << "Freeing memory genmuonVector...\n";
-	for (unsigned x = 0; x < genmuonVector->size(); x++) {
-		delete genmuonVector->at(x);
-		genmuonVector->at(x) = NULL;
-	}
-	if (verbose) std::cout << "Freeing memory genelectronVector...\n";
-	for (unsigned x = 0; x < genelectronVector->size(); x++) {
-		delete genelectronVector->at(x);
-		genelectronVector->at(x) = NULL;
-	}
-	if (verbose) std::cout << "Freeing memory genSigMetVector..." << std::endl;
-	for (unsigned x = 0; x < genSigMetVector->size(); x++) {
-		delete genSigMetVector->at(x);
-		genSigMetVector->at(x) = NULL;
-	}
-	if (verbose) std::cout << "Freeing memory genpVector...\n";
-	for (unsigned x = 0; x < genpVector->size(); x++) {
-		delete genpVector->at(x);
-		genpVector->at(x) = NULL;
-	}
-	if (verbose) std::cout << "Freeing memory genjetVector...\n";
-	for (unsigned x = 0; x < genjetVector->size(); x++) {
-		delete genjetVector->at(x);
-		genjetVector->at(x) = NULL;
-	}
-	if (verbose) std::cout << "Freeing memory photonVector...\n";
-	for (unsigned x = 0; x < photonVector->size(); x++) {
-		delete photonVector->at(x);
-		photonVector->at(x) = NULL;
-	}
-	if (verbose) std::cout << "Freeing memory ak5calojetVector...\n";
-	for (unsigned x = 0; x < ak5calojetVector->size(); x++) {
-		delete ak5calojetVector->at(x);
-		ak5calojetVector->at(x) = NULL;
-	}
-	if (verbose) std::cout << "Freeing memory ak7calojetVector...\n";
-	for (unsigned x = 0; x < ak7calojetVector->size(); x++) {
-		delete ak7calojetVector->at(x);
-		ak7calojetVector->at(x) = NULL;
-	}
-	if (verbose) std::cout << "Freeing memory pfjetVector...\n";
-	for (unsigned x = 0; x < pfjetVector->size(); x++) {
-		delete pfjetVector->at(x);
-		pfjetVector->at(x) = NULL;
-	}
-	if (verbose) std::cout << "Freeing memory SCVector...\n";
-	for (unsigned x = 0; x < SCVector->size(); x++) {
-		delete SCVector->at(x);
-		SCVector->at(x) = NULL;
-	}
-	if (verbose) std::cout << "Freeing memory muonVector...\n";
-	for (unsigned x = 0; x < muonVector->size(); x++) {
-		delete muonVector->at(x);
-		muonVector->at(x) = NULL;
-	}
-	if (verbose) std::cout << "Freeing memory recoelectronVector...\n";
-	for (unsigned x = 0; x < recoelectronVector->size(); x++) {
-		delete recoelectronVector->at(x);
-		recoelectronVector->at(x) = NULL;
-	}
+//	if (verbose) std::cout << "Freeing memory puVector...\n";
+//	for (unsigned x = 0; x < puVector->size(); x++) {
+//		delete puVector->at(x);
+//		puVector->at(x) = NULL;
+//	}
+//	if (verbose) std::cout << "Freeing memory genmuonVector...\n";
+//	for (unsigned x = 0; x < genmuonVector->size(); x++) {
+//		delete genmuonVector->at(x);
+//		genmuonVector->at(x) = NULL;
+//	}
+//	if (verbose) std::cout << "Freeing memory genelectronVector...\n";
+//	for (unsigned x = 0; x < genelectronVector->size(); x++) {
+//		delete genelectronVector->at(x);
+//		genelectronVector->at(x) = NULL;
+//	}
+//	if (verbose) std::cout << "Freeing memory genSigMetVector..." << std::endl;
+//	for (unsigned x = 0; x < genSigMetVector->size(); x++) {
+//		delete genSigMetVector->at(x);
+//		genSigMetVector->at(x) = NULL;
+//	}
+//	if (verbose) std::cout << "Freeing memory genpVector...\n";
+//	for (unsigned x = 0; x < genpVector->size(); x++) {
+//		delete genpVector->at(x);
+//		genpVector->at(x) = NULL;
+//	}
+//	if (verbose) std::cout << "Freeing memory genjetVector...\n";
+//	for (unsigned x = 0; x < genjetVector->size(); x++) {
+//		delete genjetVector->at(x);
+//		genjetVector->at(x) = NULL;
+//	}
+//	if (verbose) std::cout << "Freeing memory photonVector...\n";
+//	for (unsigned x = 0; x < photonVector->size(); x++) {
+//		delete photonVector->at(x);
+//		photonVector->at(x) = NULL;
+//	}
+//	if (verbose) std::cout << "Freeing memory ak5calojetVector...\n";
+//	for (unsigned x = 0; x < ak5calojetVector->size(); x++) {
+//		delete ak5calojetVector->at(x);
+//		ak5calojetVector->at(x) = NULL;
+//	}
+//	if (verbose) std::cout << "Freeing memory ak7calojetVector...\n";
+//	for (unsigned x = 0; x < ak7calojetVector->size(); x++) {
+//		delete ak7calojetVector->at(x);
+//		ak7calojetVector->at(x) = NULL;
+//	}
+//	if (verbose) std::cout << "Freeing memory pfjetVector...\n";
+//	for (unsigned x = 0; x < pfjetVector->size(); x++) {
+//		delete pfjetVector->at(x);
+//		pfjetVector->at(x) = NULL;
+//	}
+//	if (verbose) std::cout << "Freeing memory SCVector...\n";
+//	for (unsigned x = 0; x < SCVector->size(); x++) {
+//		delete SCVector->at(x);
+//		SCVector->at(x) = NULL;
+//	}
+//	if (verbose) std::cout << "Freeing memory muonVector...\n";
+//	for (unsigned x = 0; x < muonVector->size(); x++) {
+//		delete muonVector->at(x);
+//		muonVector->at(x) = NULL;
+//	}
+//	if (verbose) std::cout << "Freeing memory recoelectronVector...\n";
+//	for (unsigned x = 0; x < recoelectronVector->size(); x++) {
+//		delete recoelectronVector->at(x);
+//		recoelectronVector->at(x) = NULL;
+//	}
 
+	if (verbose) std::cout << "================================================"	<< std::endl;
 	if (verbose) std::cout << "================================================"	<< std::endl;
 	if (verbose) std::cout << std::endl;
 }

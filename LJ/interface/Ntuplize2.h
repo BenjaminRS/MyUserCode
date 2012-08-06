@@ -85,6 +85,8 @@
 #include "TFile.h"
 #include "MyObjs.h"
 
+using namespace brs;
+
 class Ntuplize2: public edm::EDAnalyzer {
 public:
 	explicit Ntuplize2(const edm::ParameterSet&);
@@ -102,22 +104,21 @@ public:
 	std::vector<std::pair<reco::GenParticle, unsigned> > muvec;
 	std::vector<std::pair<reco::GenParticle, unsigned> > hd0vec;
 	std::vector<std::pair<reco::GenParticle, unsigned> > genpvec;
-	std::vector<MyHLTObj*> * hltobjVector;
-	std::vector<MyGenParticle*> * genpVector;
-	std::vector<MyGenParticle*> * genelectronVector;
-	std::vector<MyGenParticle*> * genSigMetVector;
-	std::vector<MyGenParticle*> * genmuonVector;
-	std::vector<MyRecoElectron*> * recoelectronVector;
-//	std::vector<MyCaloJet*> * calogenjetVector;
-	std::vector<MyPFJet*> * genjetVector;
-	std::vector<MyPFJet*> * pfjetVector;
-	std::vector<MyPFElectron*> * pfeleVector;
-	std::vector<MyCaloJet*> * ak5calojetVector;
-	std::vector<MyCaloJet*> * ak7calojetVector;
-	std::vector<MySC*> * SCVector;
-	std::vector<MyMuon*> * muonVector;
-	std::vector<MyPhoton*> * photonVector;
-	std::vector<MyPU*> * puVector;
+	std::vector<MyHLTObj>* hltobjVector;
+	std::vector<MyGenParticle>* genpVector;
+	std::vector<MyGenParticle>* genelectronVector;
+	std::vector<MyGenParticle>* genSigMetVector;
+	std::vector<MyGenParticle>* genmuonVector;
+	std::vector<MyRecoElectron>* recoelectronVector;
+	std::vector<MyPFJet>* genjetVector;
+//	std::vector<MyPFJet>* pfjetVector;
+	std::vector<MyPFElectron>* pfeleVector;
+	std::vector<MyCaloJet>* ak5calojetVector;
+	std::vector<MyCaloJet>* ak7calojetVector;
+	std::vector<MySC>* SCVector;
+	std::vector<MyMuon>* muonVector;
+	std::vector<MyPhoton>* photonVector;
+	std::vector<MyPU>* puVector;
 	MyHLT hlt;
 	MyMET met;
 	MyEvent evtdata;
