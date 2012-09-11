@@ -166,6 +166,7 @@ namespace brs{
 	  double Itrk, Ical;
 	  double Et_0_2;
 	  unsigned ntrks;
+	  unsigned ngoodtrks;
 	  unsigned nele;
 	  unsigned neleFixed;
 	  float emf;
@@ -177,6 +178,7 @@ namespace brs{
 	  float btag_softele;
 	  float btag_jetprob;
 	  unsigned ntrkAbove1, ntrkAbove2_5, ntrkAbove5;
+	  unsigned ngoodtrkAbove1, ngoodtrkAbove2_5, ngoodtrkAbove5;
 	  float n90Hits, fHPD;
 	  ClassDef(MyCaloJet,1)
 	};
@@ -189,6 +191,7 @@ namespace brs{
 	  unsigned event;
 	  unsigned lumi;
 	  bool goodVertex;
+	  unsigned numPV;
 	  ClassDef(MyEvent,1)
 	};
 

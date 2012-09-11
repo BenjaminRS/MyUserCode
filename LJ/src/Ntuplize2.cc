@@ -875,6 +875,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 	evtdata.event = iEvent.id().event();
 	evtdata.lumi = iEvent.id().luminosityBlock();
 	evtdata.goodVertex = goodPV;
+	evtdata.numPV = goodVertices.size();
 
 //########################### B-tagging ###########################
 	const reco::JetTagCollection & bTags_secvtx = *(bTag_secvtx_Handle.product());
@@ -911,6 +912,12 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		int ntrks = reco::JetTracksAssociation::tracksNumber(*ak5assocCaloJetTracks, (*ak5caloJets)[i]);
 		float sumPt = reco::JetTracksAssociation::tracksP4(*ak5assocCaloJetTracks,(*ak5caloJets)[i]).pt();
 		reco::TrackRefVector calotracks = reco::JetTracksAssociation::getValue(*ak5assocCaloJetTracks, (*ak5caloJets)[i]);
+		unsigned int numGoodTrks(0);
+		for (unsigned t = 0; t < calotracks.size(); ++t) {
+			const reco::Track& track = *(calotracks[t]);
+			if ( fabs(track.dz(goodVertices.at(0)->position())) < 0.1) ++numGoodTrks;
+		}
+
 		reco::CaloJet correctedJet = (*ak5caloJets)[i];
 //		double scale = corrector->correction((*ak5caloJets)[i].p4());  //calculate the correction - BRS: comment out, add next line
 		double scale = 1.0;
@@ -948,6 +955,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		calojet.neleFixed = numFixedEle;
 		calojet.emf = (*ak5caloJets)[i].emEnergyFraction();
 		calojet.ntrks = ntrks;
+		calojet.ngoodtrks = numGoodTrks;
 		calojet.dR = (*ak5caloJets)[i].maxDistance();
 		calojet.crtrans = sumPt / ((*ak5caloJets)[i].et() * (*ak5caloJets)[i].emEnergyFraction());
 		calojet.cr = sumPt / ((*ak5caloJets)[i].energy() * (*ak5caloJets)[i].emEnergyFraction());
@@ -955,12 +963,18 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		calojet.Et_0_2 = (*ak5caloJets)[i].etInAnnulus(0.0, 0.2);
 		double Itrk = 0.0;
 		unsigned ntrkAbove1 = 0, ntrkAbove2_5 = 0, ntrkAbove5 = 0;
+		unsigned ngoodtrkAbove1 = 0, ngoodtrkAbove2_5 = 0, ngoodtrkAbove5 = 0;
 		for (unsigned t = 0; t < calotracks.size(); ++t) {
 			const reco::Track& track = *(calotracks[t]);
 			if (track.pt() < 0.5) continue;
 			if (track.pt() >= 1.0) ntrkAbove1++;
 			if (track.pt() >= 2.5) ntrkAbove2_5++;
 			if (track.pt() >= 5.0) ntrkAbove5++;
+			if ( fabs(track.dz(goodVertices.at(0)->position())) < 0.1){
+				if (track.pt() >= 1.0) ngoodtrkAbove1++;
+				if (track.pt() >= 2.5) ngoodtrkAbove2_5++;
+				if (track.pt() >= 5.0) ngoodtrkAbove5++;
+			}
 			TVector3 tvec(0, 0, 0);
 			tvec.SetPtEtaPhi(track.pt(), track.eta(), track.phi());
 			double dR = calojet.p4.Vect().DrEtaPhi(tvec);
@@ -970,7 +984,9 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		calojet.ntrkAbove1 = ntrkAbove1;
 		calojet.ntrkAbove2_5 = ntrkAbove2_5;
 		calojet.ntrkAbove5 = ntrkAbove5;
-
+		calojet.ngoodtrkAbove1 = ngoodtrkAbove1;
+		calojet.ngoodtrkAbove2_5 = ngoodtrkAbove2_5;
+		calojet.ngoodtrkAbove5 = ngoodtrkAbove5;
 		// Loop over btags
 		bool found_btag_info = false;
 		for (unsigned int b = 0; b != bTags_secvtx.size(); ++b) {
@@ -1016,6 +1032,11 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		int ntrks = reco::JetTracksAssociation::tracksNumber(*ak7assocCaloJetTracks, (*ak7caloJets)[i]);
 		float sumPt = reco::JetTracksAssociation::tracksP4(*ak7assocCaloJetTracks,(*ak7caloJets)[i]).pt();
 		reco::TrackRefVector calotracks = reco::JetTracksAssociation::getValue(*ak7assocCaloJetTracks, (*ak7caloJets)[i]);
+		unsigned int numGoodTrks(0);
+		for (unsigned t = 0; t < calotracks.size(); ++t) {
+			const reco::Track& track = *(calotracks[t]);
+			if ( fabs(track.dz(goodVertices.at(0)->position())) < 0.1) ++numGoodTrks;
+		}
 		reco::CaloJet correctedJet = (*ak7caloJets)[i];
 //		double scale = corrector->correction((*ak7caloJets)[i].p4());  //calculate the correction - BRS: comment out, add next line
 		double scale = 1.0;
@@ -1052,6 +1073,7 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		calojet.neleFixed = numFixedEle;
 		calojet.emf = (*ak7caloJets)[i].emEnergyFraction();
 		calojet.ntrks = ntrks;
+		calojet.ngoodtrks = numGoodTrks;
 		calojet.dR = (*ak7caloJets)[i].maxDistance();
 		calojet.crtrans = sumPt / ((*ak7caloJets)[i].et() * (*ak7caloJets)[i].emEnergyFraction());
 		calojet.cr = sumPt / ((*ak7caloJets)[i].energy() * (*ak7caloJets)[i].emEnergyFraction());
@@ -1059,12 +1081,18 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		calojet.Et_0_2 = (*ak7caloJets)[i].etInAnnulus(0.0, 0.2);
 		double Itrk = 0.0;
 		unsigned ntrkAbove1 = 0, ntrkAbove2_5 = 0, ntrkAbove5 = 0;
+		unsigned ngoodtrkAbove1 = 0, ngoodtrkAbove2_5 = 0, ngoodtrkAbove5 = 0;
 		for (unsigned t = 0; t < calotracks.size(); ++t) {
 			const reco::Track& track = *(calotracks[t]);
 			if (track.pt() < 0.5) continue;
 			if (track.pt() >= 1.0) ntrkAbove1++;
 			if (track.pt() >= 2.5) ntrkAbove2_5++;
 			if (track.pt() >= 5.0) ntrkAbove5++;
+			if ( fabs(track.dz(goodVertices.at(0)->position())) < 0.1){
+				if (track.pt() >= 1.0) ngoodtrkAbove1++;
+				if (track.pt() >= 2.5) ngoodtrkAbove2_5++;
+				if (track.pt() >= 5.0) ngoodtrkAbove5++;
+			}
 			TVector3 tvec(0, 0, 0);
 			tvec.SetPtEtaPhi(track.pt(), track.eta(), track.phi());
 			double dR = calojet.p4.Vect().DrEtaPhi(tvec);
@@ -1074,6 +1102,9 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 		calojet.ntrkAbove1 = ntrkAbove1;
 		calojet.ntrkAbove2_5 = ntrkAbove2_5;
 		calojet.ntrkAbove5 = ntrkAbove5;
+		calojet.ngoodtrkAbove1 = ngoodtrkAbove1;
+		calojet.ngoodtrkAbove2_5 = ngoodtrkAbove2_5;
+		calojet.ngoodtrkAbove5 = ngoodtrkAbove5;
 
 		// Loop over btags
 		bool found_btag_info = false;
