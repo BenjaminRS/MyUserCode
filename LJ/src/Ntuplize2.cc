@@ -91,7 +91,7 @@ void Ntuplize2::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 					if (verbose) std::cout << "\t\t found an ele trigger!!! " << std::endl;
 					tmptrignames.push_back(str);
 				}
-				else if (strstr(str.c_str(), "HLT_DoubleEle") != NULL) {
+				if (strstr(str.c_str(), "HLT_DoubleEle") != NULL) {
 					if (verbose) std::cout << "\t\t found an double ele trigger!!! "	<< std::endl;
 					tmptrignames.push_back(str);
 				}
@@ -101,7 +101,11 @@ void Ntuplize2::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 					if (verbose) std::cout << "\t\t found an mu trigger!!! " << std::endl;
 					tmptrignames.push_back(str);
 				}
-				else if (strstr(str.c_str(), "HLT_DoubleMu") != NULL) {
+				if (strstr(str.c_str(), "HLT_IsoMu") != NULL && strstr(str.c_str(), "Jet") == NULL && strstr(str.c_str(), "Jpsi") == NULL && strstr(str.c_str(), "CaloId") == NULL) {
+					if (verbose) std::cout << "\t\t found an iso mu trigger!!! " << std::endl;
+					tmptrignames.push_back(str);
+				}
+				if (strstr(str.c_str(), "HLT_DoubleMu") != NULL) {
 					if (verbose) std::cout << "\t\t found an double mu trigger!!! " << std::endl;
 					tmptrignames.push_back(str);
 				}
@@ -130,6 +134,10 @@ void Ntuplize2::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 			}
 			if (strstr(str.c_str(), "HLT_Mu") != NULL && strstr(str.c_str(), "Jet") == NULL && strstr(str.c_str(), "Jpsi") == NULL && strstr(str.c_str(), "CaloId") == NULL) {
 				if (verbose) std::cout << "\t\t found an mu trigger!!! " << std::endl;
+				tmptrignames.push_back(str);
+			}
+			if (strstr(str.c_str(), "HLT_IsoMu") != NULL && strstr(str.c_str(), "Jet") == NULL && strstr(str.c_str(), "Jpsi") == NULL && strstr(str.c_str(), "CaloId") == NULL) {
+				if (verbose) std::cout << "\t\t found an iso mu trigger!!! " << std::endl;
 				tmptrignames.push_back(str);
 			}
 			if (strstr(str.c_str(), "HLT_DoubleMu") != NULL) {
