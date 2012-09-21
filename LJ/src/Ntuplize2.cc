@@ -54,10 +54,14 @@ unsigned long long Ntuplize2::checkTrigger(const edm::TriggerResults& HLTR,std::
 	if (verbose) std::cout << "looping over trigger indices ... HLTR.size() " << HLTR.size() << std::endl;
 	for (unsigned i = 0; i < triggerIndices.size(); i++) {
 		unsigned triggerIndex = triggerIndices[i];
-		if (verbose) std::cout << "triggerIndex=" << triggerIndices[i] << std::endl;
+		if (verbose) std::cout << "triggerIndex=" << triggerIndices[i] << " name:" << triggerNames_[i] << std::endl;
 		// triggerIndex must be less than the size of HLTR or you get a CMSException: _M_range_check
 		if (triggerIndex < HLTR.size()) {
-			if (HLTR.accept(triggerIndex)) bits |= (1ULL << i);
+			if (HLTR.accept(triggerIndex)){
+				bits |= (1ULL << i);
+				hlt.firedTrigPaths.push_back(triggerNames_[i]);
+			}
+			if (verbose) std::cout << "\tbits=" << bits << std::endl;
 		}
 	}
 	return bits;
@@ -68,6 +72,7 @@ void Ntuplize2::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 	triggerNames_.clear();
 	triggerIndices_.clear();
 	lastFilterLabels_.clear();
+	allFilterLabels_.clear();	//Needed for when multiple tables exist and beginRun runs more than once
 	//--- htlConfig_
 	processname_ = "HLT";
 	bool changed(true);

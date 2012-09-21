@@ -63,11 +63,12 @@ namespace brs{
 		MyHLT(){}
 		~MyHLT(){}
 	  unsigned long long bits;
+	  std::vector<std::string> firedTrigPaths;
 		  // 0x1   HLT_Jet30U
 		  // 0x2   HLT_Jet50U
 		  // 0x4   HLT_Jet70U
 		  // 0x8   HLT_Jet100U
-	  ClassDef(MyHLT,1)
+	  ClassDef(MyHLT,2)
 	};
 
 	class MyMET : public TObject{
