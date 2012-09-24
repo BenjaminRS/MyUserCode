@@ -282,6 +282,8 @@ void Ntuplize2::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup) 
 // BRS: store all HLT info even if MC
 	hltobjVector->clear();
 	hlt.bits = 0;
+	hlt.firedTrigPaths.clear();
+
 	if (verbose) std::cerr << "getting TriggerResults ... " << std::endl;
 	if (verbose) std::cout << "checking trigger  ... " << std::endl;
 	unsigned long bits = checkTrigger((*HLTR), triggerIndices_);
